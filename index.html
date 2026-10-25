@@ -326,6 +326,7 @@ html.big .app, html.big #sheetRoot { zoom: 1.12; }
 .choice.pressed { transform: scale(.98); box-shadow: inset 0 0 0 3px var(--sun); }
 .set-group { display: flex; flex-direction: column; gap: 6px; border: 1.5px solid var(--line); background: var(--surface); border-radius: 14px; padding: 12px 14px; }
 .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--track); border-radius: 12px; padding: 4px; margin-top: 4px; }
+.seg.seg4 { grid-template-columns: repeat(4, 1fr); } .seg.seg4 button { font-size: 13px; padding: 0 2px; }
 .seg button { border: none; background: transparent; color: var(--ink); font: inherit; font-weight: 700; font-size: 14px; border-radius: 9px; min-height: 40px; }
 .seg button[aria-checked="true"] { background: var(--surface); box-shadow: 0 1px 3px rgba(0,0,0,.15); color: var(--lagoon); }
 .seg button:focus-visible { outline: 3px solid var(--sun); }
@@ -354,6 +355,12 @@ html.big .app, html.big #sheetRoot { zoom: 1.12; }
 .set-links { display: flex; flex-wrap: wrap; gap: 14px; margin: 6px 2px; }
 @media print { body.print-sheet .app, body.print-sheet #confetti { display: none !important; } body.print-sheet .sheet-back { position: static; background: none; } body.print-sheet .sheet { position: static; max-height: none; overflow: visible; box-shadow: none; } body.print-sheet .sheet .btn, body.print-sheet .sheet .linkbtn, body.print-sheet .sheet-head { display: none !important; } }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .reflect { background: #16322F; } }
+.lawpath { list-style: none; margin: 6px 0 2px; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; font-size: 12px; font-weight: 700; }
+.lawpath li { padding: 4px 8px; border-radius: 8px; background: var(--track); color: var(--ink-soft); }
+.lawpath .lp-ok { background: #DDEFE3; color: #1F6B3A; } .lawpath .lp-warn { background: var(--warn-bg, #FBF0D6); color: var(--warn-ink, #6A4806); }
+.lawpath .lp-no { background: #F6D9D2; color: #A8361F; } .lawpath .lp-wait { background: #E6EEF2; color: #2D5E8C; } .lawpath .lp-off { opacity: .5; text-decoration: line-through; }
+.badge.win { background: #DDEFE3; color: #1F6B3A; margin-left: 4px; }
+.post { background: var(--ground); border-radius: 14px; padding: 12px 14px; border-left: 4px solid #B4472C; } .post p { margin: 4px 0 0; font-size: 16px; color: var(--ink); }
 .why-v { flex: none; font-weight: 800; font-variant-numeric: tabular-nums; min-width: 2.4em; } .why-v.up { color: var(--good); } .why-v.down { color: var(--bad); }
 
 
@@ -362,7 +369,7 @@ html.big .app, html.big #sheetRoot { zoom: 1.12; }
 
 /* tifaifai-inspired ornaments (pāʻoti flower on cards, pū diamonds under sheet headers) */
 #screen .card { position: relative; }
-#screen .card::after { content: ""; position: absolute; right: 10px; bottom: 10px; width: 54px; height: 54px; background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cg%20fill%3D%22%230B5F63%22%3E%3Cpath%20d%3D%22M50%2050%20C58%2030%2070%2022%2072%206%20C60%2012%2050%2024%2050%2050Z%22%20transform%3D%22rotate%2822.5%2050%2050%29%22/%3E%3Cpath%20d%3D%22M50%2050%20C58%2030%2070%2022%2072%206%20C60%2012%2050%2024%2050%2050Z%22%20transform%3D%22rotate%28112.5%2050%2050%29%22/%3E%3Cpath%20d%3D%22M50%2050%20C58%2030%2070%2022%2072%206%20C60%2012%2050%2024%2050%2050Z%22%20transform%3D%22rotate%28202.5%2050%2050%29%22/%3E%3Cpath%20d%3D%22M50%2050%20C58%2030%2070%2022%2072%206%20C60%2012%2050%2024%2050%2050Z%22%20transform%3D%22rotate%28292.5%2050%2050%29%22/%3E%3C/g%3E%3Cg%20fill%3D%22%230B5F63%22%20fill-opacity%3D%22.85%22%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%280%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%2845%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%2890%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%28135%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%28180%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%28225%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%28270%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%28315%2050%2050%29%22/%3E%3C/g%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%227%22%20fill%3D%22%23FFFFFF%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%223.5%22%20fill%3D%22%230B5F63%22/%3E%3C/svg%3E") center / contain no-repeat; opacity: .09; pointer-events: none; }
+#screen .card::after { content: ""; position: absolute; right: 10px; bottom: 10px; width: 44px; height: 44px; background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cg%20fill%3D%22%230B5F63%22%3E%3Cpath%20d%3D%22M50%2050%20C58%2030%2070%2022%2072%206%20C60%2012%2050%2024%2050%2050Z%22%20transform%3D%22rotate%2822.5%2050%2050%29%22/%3E%3Cpath%20d%3D%22M50%2050%20C58%2030%2070%2022%2072%206%20C60%2012%2050%2024%2050%2050Z%22%20transform%3D%22rotate%28112.5%2050%2050%29%22/%3E%3Cpath%20d%3D%22M50%2050%20C58%2030%2070%2022%2072%206%20C60%2012%2050%2024%2050%2050Z%22%20transform%3D%22rotate%28202.5%2050%2050%29%22/%3E%3Cpath%20d%3D%22M50%2050%20C58%2030%2070%2022%2072%206%20C60%2012%2050%2024%2050%2050Z%22%20transform%3D%22rotate%28292.5%2050%2050%29%22/%3E%3C/g%3E%3Cg%20fill%3D%22%230B5F63%22%20fill-opacity%3D%22.85%22%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%280%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%2845%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%2890%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%28135%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%28180%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%28225%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%28270%2050%2050%29%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2227%22%20rx%3D%227.5%22%20ry%3D%2217%22%20transform%3D%22rotate%28315%2050%2050%29%22/%3E%3C/g%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%227%22%20fill%3D%22%23FFFFFF%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%223.5%22%20fill%3D%22%230B5F63%22/%3E%3C/svg%3E") center / contain no-repeat; opacity: .07; pointer-events: none; }
 .sheet-head { padding-bottom: 10px; background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%208%22%3E%3Cpath%20d%3D%22M4%200%208%204%204%208%200%204Z%20M12%200%2016%204%2012%208%208%204Z%22%20fill%3D%22%23B4472C%22/%3E%3Cpath%20d%3D%22M8%202%2010%204%208%206%206%204Z%22%20fill%3D%22%23E8B04B%22/%3E%3C/svg%3E") left bottom / 16px 8px repeat-x; }
 .hero::after { content: ""; display: block; height: 8px; margin-top: 12px; background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%208%22%3E%3Cpath%20d%3D%22M4%200%208%204%204%208%200%204Z%20M12%200%2016%204%2012%208%208%204Z%22%20fill%3D%22%23B4472C%22/%3E%3Cpath%20d%3D%22M8%202%2010%204%208%206%206%204Z%22%20fill%3D%22%23E8B04B%22/%3E%3C/svg%3E") left center / 16px 8px repeat-x; opacity: .8; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #screen .card::after { opacity: .14; filter: invert(1) hue-rotate(180deg); } }
@@ -5496,7 +5503,7 @@ function afterSituation() { if (S.ending) { S.screen = "end"; clearSave(); rende
 
 /* ================= PHASE 4 — settings, sound, news ticker ================= */
 const PREF_KEY = "manuMana.prefs.v1";
-const PREFS = (() => { const d = { sound: true, vol: 0.6, reduce: false, motion: null, ticker: true, big: false, tts: true, autoRead: false, rate: 1 }; try { return Object.assign(d, JSON.parse(localStorage.getItem(PREF_KEY) || "{}")); } catch (e) { return d; } })();
+const PREFS = (() => { const d = { sound: true, vol: 0.6, reduce: false, motion: null, ticker: true, big: false, tts: true, autoRead: false, rate: 1, paint: "gouache", livingPaint: true }; try { return Object.assign(d, JSON.parse(localStorage.getItem(PREF_KEY) || "{}")); } catch (e) { return d; } })();
 function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify(PREFS)); } catch (e) { } }
 const sysReduce = () => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } };
 if (!PREFS.motion && PREFS.reduce) PREFS.motion = "aucun";            // migrate the old on/off setting
@@ -5678,6 +5685,9 @@ function openSettings() {
       <label class="set-vol"><span>Volume</span><input type="range" id="volRange" min="0" max="1" step="0.05" value="${PREFS.vol}" ${PREFS.sound ? "" : "disabled"}></label>
       <div class="set-group" role="radiogroup" aria-labelledby="motTitle"><b id="motTitle">Animations</b><span class="small">${sysReduce() ? "Votre appareil demande de réduire les animations. " : ""}Réduit : l'île vit doucement, sans tremblements ni confettis. Aucun : l'île est immobile.</span>
         <div class="seg">${[["complet", "Complet"], ["reduit", "Réduit"], ["aucun", "Aucun"]].map(([k, l]) => `<button type="button" role="radio" data-motion="${k}" aria-checked="${motionLevel() === k}">${l}</button>`).join("")}</div></div>
+      <div class="set-group" role="radiogroup" aria-labelledby="styTitle"><b id="styTitle">Style de l'île</b><span class="small">Une peinture qui vit : les coups de pinceau bougent doucement. « Plat » est le plus léger pour les vieux téléphones.</span>
+        <div class="seg seg4">${[["plat", "Plat"], ["gouache", "Gouache"], ["acrylique", "Acrylique"], ["pastel", "Pastel"]].map(([k, l]) => `<button type="button" role="radio" data-paint="${k}" aria-checked="${(PREFS.paint || "gouache") === k}">${l}</button>`).join("")}</div></div>
+      ${row("livingPaint", "Peinture vivante", "Les coups de pinceau frémissent, comme un tableau animé à la main. Désactivé si les animations sont réduites.")}
       ${"speechSynthesis" in window ? row("tts", "Lecture à voix haute", "Un bouton « Écouter » lit chaque carte avec la voix de l'appareil.") + row("autoRead", "Lecture automatique", "Chaque nouvelle carte est lue dès qu'elle s'affiche.") : ""}
       ${row("ticker", "Radio Motu Nui", "Le bandeau d'actualités sous l'île.")}
       ${row("big", "Texte plus grand", "Agrandit tout le texte du jeu.")}
@@ -5690,6 +5700,7 @@ function openSettings() {
     const vr = $("volRange"); if (vr) vr.disabled = !PREFS.sound;
     applyPrefs(); lastNewsKey = ""; renderTicker(); Scene.update();
   });
+  document.querySelectorAll("[data-paint]").forEach(b => b.onclick = () => { PREFS.paint = b.dataset.paint; savePrefs(); document.querySelectorAll("[data-paint]").forEach(x => x.setAttribute("aria-checked", x === b ? "true" : "false")); Scene.update(); });
   document.querySelectorAll("[data-motion]").forEach(b => b.onclick = () => { PREFS.motion = b.dataset.motion; PREFS.reduce = false; savePrefs(); document.querySelectorAll("[data-motion]").forEach(x => x.setAttribute("aria-checked", x === b ? "true" : "false")); applyPrefs(); Scene.update(); });
   const vr = $("volRange"); if (vr) vr.oninput = () => { PREFS.vol = +vr.value; savePrefs(); Sound.setVolume(); };
 }
@@ -6513,7 +6524,7 @@ function secondRound(v) {
 }
 function parlFromElection(E) { const g = k => (E.lists.find(l => l.k === k) || { seats: 0 }).seats; return { maj: g("vous"), a: g("a"), b: g("b"), ni: 0 }; }
 function ensureParl() { if (S.parl) return; S.firstElection = secondRound(44); S.parl = parlFromElection(S.firstElection); }
-const parlVoteMod = () => S.parl ? (S.parl.maj - 24) * 0.03 : 0;
+const parlVoteMod = () => (S.parl ? (S.parl.maj - 24) * 0.03 : 0) + (S.windowBoost ? 0.12 : 0);
 const parlLabel = () => S.parl ? `${S.parl.maj} sièges sur ${SEATS}` : "";
 
 /* ---------- CESEC opinion on laws ---------- */
@@ -7031,6 +7042,202 @@ try { if (!LEX.some(x => x.t === "Tarahoi")) LEX.push({ t: "Tarahoi", th: "Insti
 
 /* credit line for the ornaments in the model sheet */
 (function hookModel() { const base = window.openModel; if (!base) return; window.openModel = function () { base(); const b = document.querySelector(".sheet .btn[data-close]"); if (b) b.insertAdjacentHTML("beforebegin", `<div class="box"><h3>Les décors</h3><p class="small">Les bâtiments s'inspirent de vrais lieux : l'Assemblée de la place Tarahoi à Papeete (1969), le temple octogonal de Papetoai à Moorea, le marae dessiné sans effet magique ni cérémonie inventée. Les ornements des cartes sont inspirés du tifaifai, l'art du patchwork polynésien. Les motifs du tatouage (tatau) et les tiki ne sont pas utilisés, par respect pour leur valeur sacrée.</p></div>`); }; })();
+
+/* ================= PHASE 10 — political-science depth and replay ================= */
+/* 1. Honeymoon, rally and the cost of ruling, layered on the vote estimate */
+(function hookVoteShare() {
+  const base = window.voteShare;
+  window.voteShare = function () {
+    const hm = { 1: 3, 2: 1, 5: 3, 6: 1 }[S.year] || 0;                    // honeymoon after an election
+    const rally = S.rallyYear === S.year ? 2 : 0;                          // rally after a well-handled disaster
+    const pre = S.screen === "election" && S.preSpend ? 4 : 0;             // pre-election hand-outs
+    return Math.max(5, Math.min(85, base() + hm + rally + pre));
+  };
+})();
+(function hookCyclone() { const base = window.answerCyclone; window.answerCyclone = function (kind) { if (kind !== "ignore") S.rallyYear = S.year; S.policyWindow = { until: turnNo() + 3, why: "après le cyclone" }; return base(kind); }; })();
+
+/* 2. Policy window (Kingdon): after a big crisis, laws pass more easily for a few turns */
+const windowOpen = () => S.policyWindow && turnNo() <= S.policyWindow.until;
+(function hookCrisesYear() {
+  const base = window.crisesYear;
+  window.crisesYear = function (...a) {
+    const r = base.apply(this, a);
+    if (S.sits && Object.values(S.sits).some(x => x.level >= 3)) S.policyWindow = { until: turnNo() + EVENTS_PER_YEAR, why: "la crise a convaincu les élus d'agir" };
+    if (S.year === MANDATE && !S.preAsked) { S.preAsked = true; S.sitQueue.push("preelec"); }
+    if (S.preSpend && S.year === MANDATE + 1 && !S.audited) {
+      S.audited = true; const d = emptyD(); const prev = CAUSE; CAUSE = "Contrôle de la Chambre territoriale des comptes"; apply({ d: -3, b: -3 }, { J: -2 }, d); CAUSE = prev;
+      (S.crisisReport = S.crisisReport || []).push({ kind: "bad", msg: "La Chambre territoriale des comptes publie son rapport : les aides distribuées juste avant l'élection ont été mal contrôlées et ont creusé le déficit. La presse parle de « clientélisme »." });
+    }
+    return r;
+  };
+})();
+const parlChoose = window.choose;
+window.choose = function (i) { if (windowOpen()) S.windowBoost = true; else S.windowBoost = false; return parlChoose(i); };
+
+/* 3. Pre-election spending, then the audit (political business cycle) */
+function preelecView() {
+  const C = S.sitCur, a = C.answered;
+  return `<article class="card">
+    <span class="eyebrow">Dernière année avant l'élection</span>
+    <h2 class="headline">Vos conseillers proposent de distribuer des aides juste avant le vote.</h2>
+    <p class="quote">« Une prime pour les familles, des chantiers dans chaque commune, des embauches… Les électeurs s'en souviendront dans l'isoloir. »</p>
+    ${a ? `${chips(C.d)}<div class="why"><span class="eyebrow">Décision</span><p>${esc(C.out)}</p></div><button class="btn" data-act="afterSituation">Continuer</button>`
+      : `<div class="choices">
+      <button class="choice" data-sit="spend"><span class="choice-title">Distribuer les aides</span><span class="choice-hint">Budget ↓ · Bonheur ↑ · plus de voix à l'élection · risque de contrôle après</span></button>
+      <button class="choice" data-sit="sober"><span class="choice-title">Rester sobre et présenter un bilan honnête</span><span class="choice-hint">Démocratie ↑ · pas de bonus électoral</span></button></div>`}
+  </article>`;
+}
+function answerPreelec(kind) {
+  const C = S.sitCur, d = emptyD();
+  if (kind === "spend") { S.preSpend = true; apply({ b: -6, h: 3 }, { F: 3, I: 2 }, d); C.out = "Les aides arrivent quelques mois avant le vote. Les économistes appellent cela le « cycle électoral » (William Nordhaus, 1975) : des dépenses avant les élections, une facture après. Les juges des comptes pourraient s'y intéresser."; }
+  else { apply({ d: 2 }, {}, d); C.out = "Vous refusez d'acheter des voix avec l'argent public. Certains électeurs apprécient cette honnêteté, d'autres auraient préféré une prime."; }
+  C.answered = kind; C.d = d; learn("f_controles"); render();
+}
+
+/* 4. The legislative path, shown under each law */
+function lawPath(state) {
+  const steps = [["Conseil des ministres", "ok"], ["Avis du CESEC", S.cesecNow ? (S.cesecNow.k === "defav" ? "warn" : "ok") : "ok"], ["Vote de l'Assemblée", state === "rejected" ? "no" : "ok"], ["Recours possible au Conseil d'État", state === "rejected" ? "off" : "wait"], ["Promulgation", state === "rejected" ? "off" : "ok"]];
+  return `<ol class="lawpath" aria-label="Le chemin d'une loi du pays">${steps.map(([t, s2]) => `<li class="lp-${s2}">${esc(t)}</li>`).join("")}</ol>`;
+}
+(function hookLawViews() {
+  const asm = VIEWS.assembly; VIEWS.assembly = () => { let h = asm(); const i = h.indexOf('<div class="choices">'); return h.slice(0, i) + lawPath("rejected") + h.slice(i); };
+  const res = VIEWS.result; VIEWS.result = () => { let h = res(); if (S.lastLaw && S.last && S.last.mode !== "ref" && S.last.mode !== "abandon" && level().vote) { const i = h.lastIndexOf("<button"); h = h.slice(0, i) + `<div class="box"><span class="eyebrow">Le chemin de la loi du pays</span>${lawPath("passed")}${S.windowBoost ? `<p class="small">Fenêtre d'opportunité : ${esc(S.policyWindow.why)}, les élus étaient plus prêts à voter.</p>` : ""}</div>` + h.slice(i); }
+    if (S.last && S.lastRumeurOffer) { const i = h.lastIndexOf("<button"); h = h.slice(0, i) + `<button class="btn ghost" data-p10="rumeur">Faire l'atelier « Rumeur sur le fenua » (3 minutes)</button>` + h.slice(i); } return h; };
+  const ev = VIEWS.event; VIEWS.event = () => { let h = ev(); if (windowOpen() && level().vote) h = h.replace(/<span class="badge">Vote de l'Assemblée<\/span>/g, `<span class="badge">Vote de l'Assemblée</span><span class="badge win">Fenêtre d'opportunité</span>`); return h; };
+  const sit = VIEWS.situation; VIEWS.situation = () => (S.sitCur && S.sitCur.id === "preelec" ? preelecView() : sit());
+})();
+(function hookAnswer() { const base = window.answerSituation; window.answerSituation = function (k) { if (S.sitCur && S.sitCur.id === "preelec") { const prev = CAUSE; CAUSE = "Aides avant l'élection"; try { return answerPreelec(k); } finally { CAUSE = prev; } } return base(k); }; })();
+
+/* 5. « Rumeur sur le fenua »: a short inoculation workshop (Harmony Square-style) */
+const RUMEURS = [
+  { post: "URGENT 😱 Le gouvernement va VENDRE le lagon à des étrangers ! Partagez avant que ce message soit supprimé !!!", ok: "emotion", why: "Peur, majuscules, urgence : le message veut qu'on partage avant de réfléchir." },
+  { post: "Le « docteur » Tehei, grand scientifique, l'affirme : l'eau du nouveau réseau rend malade. Il l'a vu sur internet.", ok: "expert", why: "Un faux expert : on ne sait pas qui il est, ni sur quelles preuves il s'appuie." },
+  { post: "Si les prix montent, c'est la faute des gens des îles qui viennent prendre nos emplois à la ville.", ok: "bouc", why: "Un bouc émissaire : on accuse un groupe entier au lieu d'expliquer les vraies causes." },
+  { post: "Le cyclone n'était pas naturel : il a été provoqué pour faire voter la loi sur les abris. On nous cache tout.", ok: "complot", why: "Un complot imaginaire : tout serait secret et voulu, donc impossible à vérifier." },
+  { post: "Soit tu es avec nous, soit tu es un traître à ton fenua. Il n'y a pas de milieu.", ok: "polar", why: "La polarisation « nous contre eux » : on oblige à choisir un camp et on transforme l'autre en ennemi." },
+];
+const TECH = [["emotion", "Émotion et urgence"], ["expert", "Faux expert"], ["bouc", "Bouc émissaire"], ["complot", "Complot"], ["polar", "Nous contre eux"]];
+VIEWS.rumeur = () => {
+  const R = S.rumeur, i = R.i, P = RUMEURS[i], ans = R.ans[i];
+  if (i >= RUMEURS.length) return `<article class="card"><span class="eyebrow">Atelier · Rumeur sur le fenua</span><h2 class="headline">${R.score} technique${R.score > 1 ? "s" : ""} repérée${R.score > 1 ? "s" : ""} sur ${RUMEURS.length}</h2>
+    <p>Des chercheurs de l'université de Cambridge ont montré qu'un court jeu où l'on découvre ces techniques de manipulation aide à mieux les repérer ensuite (Harmony Square, 2020). C'est comme un vaccin : on s'entraîne sur une petite dose.</p>
+    <button class="btn ghost" data-card="desinfo">${svg.info} Comprendre : la manipulation de l'information</button>
+    <button class="btn" data-p10="rumeurEnd">Retour au gouvernement</button></article>`;
+  return `<article class="card"><span class="eyebrow">Atelier · message ${i + 1} sur ${RUMEURS.length}</span>
+    <h2 class="headline">Quelle technique de manipulation voyez-vous ?</h2>
+    <div class="post"><span class="small">Message partagé 2 400 fois</span><p>${esc(P.post)}</p></div>
+    <div class="quiz">${TECH.map(([k, l]) => `<button class="quiz-opt${ans ? (k === P.ok ? " right" : k === ans ? " wrong" : "") : ""}" data-tech="${k}" ${ans ? "disabled" : ""}>${esc(l)}</button>`).join("")}</div>
+    ${ans ? `<p class="small">${ans === P.ok ? "Bien vu ! " : "Pas tout à fait. "}${esc(P.why)}</p><button class="btn" data-p10="rumeurNext">${i + 1 < RUMEURS.length ? "Message suivant" : "Voir le résultat"}</button>` : ""}
+    <button class="linkbtn" data-p10="rumeurEnd">Passer l'atelier</button></article>`;
+};
+(function hookBind() {
+  const base = window.bind;
+  window.bind = function () {
+    base();
+    document.querySelectorAll("#screen [data-p10]").forEach(b => b.onclick = () => {
+      const k = b.dataset.p10;
+      if (k === "rumeur") { S.rumeur = { i: 0, ans: {}, score: 0 }; S.lastRumeurOffer = false; S.screen = "rumeur"; render(); }
+      else if (k === "rumeurNext") { S.rumeur.i++; render(); }
+      else if (k === "rumeurEnd") { if (S.rumeur && S.rumeur.score >= 3 && !S.rumeur.paid) { S.rumeur.paid = true; const d = emptyD(); const prev = CAUSE; CAUSE = "Atelier contre les rumeurs"; apply({ d: 2 }, { J: 2 }, d); CAUSE = prev; } learn("desinfo"); S.screen = "result"; render(); }
+    });
+    document.querySelectorAll("#screen [data-tech]").forEach(b => b.onclick = () => { const R = S.rumeur, P = RUMEURS[R.i]; R.ans[R.i] = b.dataset.tech; if (b.dataset.tech === P.ok) R.score++; render(); });
+  };
+})();
+(function hookResolveRumeur() { const base = window.resolve; window.resolve = function (i, sc, mode) { const id = curId(); S.lastRumeurOffer = id === "g_rumeur" && i === 0; if (id === "g_fip" && i === 1 && S.parl && S.parl.ni > 0) { const k = Math.min(2, S.parl.ni); S.parl.ni -= k; S.parl.maj += k; } return base(i, sc, mode); }; })();
+
+/* 6. New events: rumours, commune fund, citizens' assembly (with chain), a security-law chain (small steps) */
+Object.assign(EVENTS, {
+  g_rumeur: { tier: 2, who: "Maeva", role: "Professeure au collège", card: "desinfo",
+    headline: "Une rumeur affolante circule sur les réseaux sociaux. Des parents retirent leurs enfants de l'école.",
+    quote: "« Les élèves partagent tout sans vérifier. Plutôt que d'interdire, on pourrait leur apprendre à reconnaître les pièges. »",
+    choices: [
+      { t: "Lancer un atelier dans les écoles pour repérer les manipulations", hint: "Budget ↓ un peu · Jeunes ↑ · Démocratie ↑", fx: { b: -1, d: 2 }, grp: { J: 3, F: 1 }, news: "« Les collégiens deviennent détectives de l'info »", why: "Apprendre à reconnaître les techniques de manipulation (peur, faux expert, bouc émissaire, complot) protège mieux que la censure, sans toucher à la liberté d'expression." },
+      { t: "Voter une loi pour faire supprimer les « fausses nouvelles »", hint: "Démocratie ↓↓ · Bonheur ↑ un peu", law: true, fx: { d: -6, h: 1 }, grp: { J: -3 }, news: "« Loi anti-rumeurs : qui décidera de ce qui est vrai ? »", why: "Une loi contre les « fausses nouvelles » peut aussi servir à faire taire des critiques. Plusieurs pays l'ont utilisée contre des journalistes." },
+      { t: "Démentir officiellement et laisser faire", hint: "Rien de plus · Bonheur ↓ plus tard", fx: {}, grp: {}, later: { in: 2, fx: { h: -3 }, grp: { F: -2 }, msg: "Le démenti n'a pas suffi : la rumeur revient sous une autre forme." }, news: "« Le gouvernement dément, la rumeur continue »", why: "Un démenti touche rarement ceux qui ont déjà cru la rumeur : c'est l'un des problèmes les plus difficiles de l'information en ligne." },
+    ] },
+  g_fip: { tier: 1, who: "Teva", role: "Tavana (maire) d'une commune de la côte", card: "b_decentralisation",
+    headline: "Il faut répartir le fonds des communes. Chaque tavana veut sa part pour ses routes et ses écoles.",
+    quote: "« Une règle claire, ou des choix au cas par cas ? Les tavana de votre camp attendent un geste… »",
+    choices: [
+      { t: "Répartir selon une règle publique : population et besoins", hint: "Démocratie ↑ · Îles éloignées ↑", fx: { d: 2 }, grp: { I: 2, F: 1 }, news: "« Fonds des communes : la règle est la même pour tous »", why: "En Polynésie française, le Fonds intercommunal de péréquation (FIP) répartit chaque année des ressources du Pays et de l'État entre les 48 communes, selon des critères. Une règle publique limite le favoritisme." },
+      { t: "Donner plus aux communes dont le tavana vous soutient", hint: "Majorité ↑ · Démocratie ↓ · risque de contrôle", fx: { d: -4 }, grp: { E: 1, I: -3 }, flag: "clientelisme", later: { in: 4, fx: { d: -2, b: -1 }, msg: "La Chambre territoriale des comptes relève des subventions aux communes accordées sans critères clairs." }, news: "« Les communes amies du gouvernement servies en premier »", why: "Distribuer l'argent public selon la fidélité politique s'appelle le clientélisme. Cela peut renforcer une majorité, mais les communes oubliées le font payer, et les juges des comptes peuvent enquêter." },
+      { t: "Donner la priorité aux atolls les plus isolés", hint: "Îles éloignées ↑↑ · Familles ↓ un peu", fx: { b: -1 }, grp: { I: 5, F: -2 }, news: "« Priorité aux atolls pour l'eau et les abris »", why: "Les îles éloignées ont souvent moins de services et coûtent plus cher à équiper. Les aider en priorité est juste, mais les communes de la ville protestent." },
+    ] },
+  g_convention: { tier: 3, who: "Hereiti", role: "Présidente d'une association citoyenne", card: "vote",
+    headline: "Des habitants proposent une convention citoyenne : 60 personnes tirées au sort pour proposer une loi sur le climat.",
+    quote: "« Des citoyens ordinaires, bien informés, peuvent trouver des compromis que les partis n'osent pas. Mais vous engagerez-vous à suivre leurs propositions ? »",
+    choices: [
+      { t: "Lancer la convention et promettre de reprendre ses propositions « sans filtre »", hint: "Démocratie ↑↑ · Budget ↓ · promesse risquée plus tard", fx: { d: 4, b: -2 }, grp: { J: 3 }, flag: "conventionSansFiltre", news: "« 60 citoyens tirés au sort pour le climat »", why: "En France, la Convention citoyenne pour le climat (2019-2020) a réuni 150 citoyens tirés au sort. Le président avait promis de reprendre leurs propositions « sans filtre » : une grande partie a été modifiée ou abandonnée, et beaucoup de participants ont parlé de promesse non tenue." },
+      { t: "Lancer la convention, sans promettre de tout reprendre", hint: "Démocratie ↑ · Budget ↓ un peu", fx: { d: 2, b: -1 }, grp: { J: 1 }, news: "« Une convention citoyenne pour conseiller l'Assemblée »", why: "En Irlande, une assemblée de citoyens tirés au sort (2016-2018) a préparé le référendum de 2018 sur l'avortement : les élus ont gardé le dernier mot, et le peuple a voté." },
+      { t: "Refuser : ce sont les élus qui décident", hint: "Démocratie ↓ un peu · Jeunes ↓", fx: { d: -1 }, grp: { J: -3 }, news: "« Pas de convention : les élus gardent la main »", why: "La démocratie représentative confie les décisions aux élus. Mais la confiance baisse quand les citoyens se sentent tenus à l'écart." },
+    ] },
+  g_convention2: { tier: 3, chain: "conventionSansFiltre", who: "Hereiti", role: "Présidente d'une association citoyenne", card: "vote",
+    headline: "La convention citoyenne rend ses 30 propositions. Certaines coûtent cher et fâchent les entreprises.",
+    quote: "« Vous aviez promis : sans filtre. Les 60 citoyens vous regardent. »",
+    choices: [
+      { t: "Tenir parole : tout soumettre à l'Assemblée sans modification", hint: "Démocratie ↑ · Nature ↑ · Budget ↓↓ · Entreprises ↓", law: true, fx: { d: 3, n: 5, b: -7 }, grp: { E: -5, J: 4 }, news: "« Promesse tenue : les 30 propositions arrivent à l'Assemblée »", why: "Tenir une promesse coûteuse renforce la confiance dans la parole publique, même si certaines mesures fâchent." },
+      { t: "Ne garder que les propositions les moins chères", hint: "Budget ↓ un peu · Démocratie ↓ · Jeunes ↓", fx: { b: -2, d: -5 }, grp: { J: -5, E: 2 }, news: "« Convention : le gouvernement trie, les citoyens dénoncent une trahison »", why: "C'est le reproche fait en France après la Convention citoyenne pour le climat : une promesse « sans filtre » suivie d'un tri. La déception peut faire plus de mal que de ne rien promettre." },
+      { t: "Soumettre les propositions principales à un référendum", hint: "Démocratie ↑ · Budget ↓ un peu", fx: { d: 3, b: -1, n: 2 }, grp: { E: -1 }, news: "« Le peuple tranchera les propositions de la convention »", why: "Combiner une assemblée de citoyens tirés au sort et un référendum, comme en Irlande, donne le dernier mot à tous les électeurs." },
+    ] },
+  g_secu1: { tier: 2, who: "Tamatea", role: "Ministre de la Sécurité intérieure", card: "pleinsPouvoirs",
+    headline: "Après des vols de nuit, le ministre propose un couvre-feu pour les mineurs dans la ville.",
+    quote: "« C'est une petite mesure, et les familles la demandent. Ce n'est qu'un début pour rétablir l'ordre. »",
+    choices: [
+      { t: "Instaurer le couvre-feu pour les mineurs", hint: "Familles ↑ · Démocratie ↓ un peu · Jeunes ↓", fx: { d: -2, h: 1 }, grp: { F: 3, J: -4 }, flag: "secu1", news: "« Couvre-feu pour les moins de 13 ans après 23 h »", why: "Plusieurs villes de France, comme Béziers ou Nice, ont pris des arrêtés de couvre-feu pour les mineurs. Les juges les acceptent seulement s'ils sont limités dans le temps et dans l'espace." },
+      { t: "Financer des éducateurs de rue et des activités le soir", hint: "Budget ↓ · Jeunes ↑ · Familles ↑ un peu", fx: { b: -3 }, grp: { J: 4, F: 1 }, news: "« Des éducateurs de rue plutôt qu'un couvre-feu »", why: "La prévention agit sur les causes (ennui, absence d'adultes, décrochage), mais ses effets sont plus lents et moins visibles." },
+      { t: "Refuser : la police doit cibler les voleurs, pas tous les jeunes", hint: "Familles ↓ · Jeunes ↑", fx: {}, grp: { F: -3, J: 2 }, news: "« Pas de couvre-feu : le ministre déçu »", why: "Une mesure qui vise tout un groupe d'âge touche surtout des jeunes qui n'ont rien fait." },
+    ] },
+  g_secu2: { tier: 3, chain: "secu1", who: "Tamatea", role: "Ministre de la Sécurité intérieure", card: "pleinsPouvoirs",
+    headline: "Le couvre-feu a plu. Le ministre veut maintenant des caméras à reconnaissance faciale dans toute la ville.",
+    quote: "« Les gens ont accepté le couvre-feu. Les caméras, c'est la suite logique. Qui n'a rien à cacher n'a rien à craindre. »",
+    choices: [
+      { t: "Installer la reconnaissance faciale partout", hint: "Démocratie ↓↓ · Familles ↑ un peu", fx: { d: -5 }, grp: { F: 2, J: -4 }, flag: "secu2", news: "« Motu Nui filme et reconnaît chaque visage »", why: "L'Union européenne a très fortement limité la reconnaissance faciale en temps réel dans l'espace public par sa loi sur l'intelligence artificielle (2024). Une fois installée, une surveillance de masse est rarement démontée." },
+      { t: "Quelques caméras classiques, contrôlées par un juge", hint: "Démocratie ↓ un peu · Budget ↓ un peu", fx: { d: -1, b: -1 }, grp: { F: 1 }, news: "« Des caméras, mais sous contrôle »", why: "Encadrer un outil (durée de conservation, accès, contrôle d'un juge) permet de l'utiliser sans glisser vers la surveillance de tous." },
+      { t: "Refuser et lever le couvre-feu", hint: "Démocratie ↑ · Familles ↓", fx: { d: 2 }, grp: { F: -2, J: 3 }, news: "« Fin du couvre-feu, pas de caméras »", why: "Revenir en arrière demande du courage politique : une mesure d'exception devient vite une habitude." },
+    ] },
+  g_secu3: { tier: 4, chain: "secu2", who: "Tamatea", role: "Ministre de la Sécurité intérieure", card: "pleinsPouvoirs",
+    headline: "Le ministre propose de rendre l'état d'urgence permanent, en l'inscrivant dans la loi ordinaire.",
+    quote: "« Nous avons déjà le couvre-feu et les caméras. Il ne manque que le droit de perquisitionner sans juge. Ce n'est qu'une petite étape de plus. »",
+    choices: [
+      { t: "Inscrire les pouvoirs d'urgence dans la loi", hint: "Démocratie ↓↓↓ · Familles ↑ un peu", law: true, fx: { d: -8 }, grp: { F: 1, J: -5, C: -2 }, news: "« L'exception devient la règle »", why: "En France, l'état d'urgence décrété après les attentats de novembre 2015 a duré près de deux ans ; plusieurs de ses mesures ont ensuite été inscrites dans la loi ordinaire en 2017. Petit pas après petit pas, l'exception peut devenir normale." },
+      { t: "Accepter, mais avec une date de fin et le contrôle d'un juge", hint: "Démocratie ↓ un peu", law: true, fx: { d: -2 }, grp: { F: 1 }, news: "« Pouvoirs d'urgence : deux ans maximum, sous contrôle »", why: "Une « clause de fin » oblige les élus à revoter la mesure : elle ne reste pas par simple habitude." },
+      { t: "Dire stop : revenir aux règles normales", hint: "Démocratie ↑↑ · Familles ↓", fx: { d: 4 }, grp: { F: -2, J: 3 }, news: "« Le gouvernement arrête l'escalade sécuritaire »", why: "Regarder le chemin parcouru (couvre-feu, caméras, perquisitions) aide à voir la pente : chaque mesure paraissait petite." },
+    ] },
+});
+Object.assign(EASY.events, {
+  g_rumeur: { headline: "Une rumeur qui fait peur circule sur les réseaux. Des parents gardent leurs enfants à la maison.", quote: "« Les élèves partagent tout sans vérifier. On pourrait leur apprendre à repérer les pièges. »",
+    choices: [{ t: "Faire un atelier à l'école pour repérer les pièges", hint: "Budget ↓ un peu · Jeunes ↑ · Démocratie ↑", news: "« Les collégiens deviennent détectives de l'info »", why: "Apprendre à reconnaître les pièges (peur, faux expert, bouc émissaire) protège sans interdire de parler." },
+      { t: "Faire une loi pour supprimer les « fausses nouvelles »", hint: "Démocratie ↓↓ · Bonheur ↑ un peu", news: "« Qui décidera de ce qui est vrai ? »", why: "Une telle loi peut aussi servir à faire taire ceux qui critiquent le gouvernement." },
+      { t: "Dire que c'est faux et attendre", hint: "Bonheur ↓ plus tard", news: "« La rumeur continue »", why: "Ceux qui ont cru la rumeur voient rarement le démenti." }] },
+  g_fip: { headline: "Il faut partager l'argent entre les communes. Chaque maire (tavana) veut sa part.", quote: "« Une règle pour tous, ou des cadeaux aux amis ? »",
+    choices: [{ t: "Partager avec une règle connue de tous", hint: "Démocratie ↑ · Îles éloignées ↑", news: "« La même règle pour tous »", why: "En Polynésie, un fonds partage chaque année de l'argent entre les 48 communes, avec des règles." },
+      { t: "Donner plus aux maires qui vous soutiennent", hint: "Démocratie ↓ · risque de contrôle", news: "« Les amis servis en premier »", why: "Donner l'argent de tous à ses amis politiques, c'est du clientélisme." },
+      { t: "Aider d'abord les atolls isolés", hint: "Îles éloignées ↑↑ · Familles ↓ un peu", news: "« Priorité aux atolls »", why: "Les îles isolées ont moins de services : les aider est juste, mais la ville proteste." }] },
+  g_convention: { headline: "Des habitants proposent de tirer au sort 60 personnes pour inventer une loi sur le climat.", quote: "« Des gens ordinaires peuvent avoir de bonnes idées. Allez-vous écouter leurs propositions ? »",
+    choices: [{ t: "Le faire et promettre de tout reprendre", hint: "Démocratie ↑↑ · Budget ↓ · promesse risquée", news: "« 60 citoyens tirés au sort »", why: "En France, en 2019-2020, 150 citoyens tirés au sort ont fait des propositions. Le président avait promis de tout reprendre, mais beaucoup ont été changées." },
+      { t: "Le faire, sans promettre de tout reprendre", hint: "Démocratie ↑", news: "« Une convention pour conseiller les élus »", why: "En Irlande, une assemblée de citoyens a préparé un référendum en 2018 : le peuple a voté." },
+      { t: "Refuser : les élus décident", hint: "Démocratie ↓ un peu · Jeunes ↓", news: "« Pas de convention »", why: "Les élus décident, mais les citoyens peuvent se sentir oubliés." }] },
+  g_convention2: { headline: "Les 60 citoyens rendent 30 idées. Certaines coûtent cher.", quote: "« Vous aviez promis de tout reprendre ! »",
+    choices: [{ t: "Tenir parole et tout présenter", hint: "Démocratie ↑ · Nature ↑ · Budget ↓↓", news: "« Promesse tenue »", why: "Tenir une promesse difficile donne confiance." },
+      { t: "Garder seulement les idées pas chères", hint: "Démocratie ↓ · Jeunes ↓", news: "« Les citoyens se sentent trahis »", why: "Promettre puis trier déçoit plus que ne rien promettre." },
+      { t: "Demander l'avis du peuple par référendum", hint: "Démocratie ↑", news: "« Le peuple décidera »", why: "Comme en Irlande, tout le monde a le dernier mot." }] },
+  g_secu1: { headline: "Après des vols la nuit, le ministre veut interdire aux enfants de sortir le soir.", quote: "« C'est une petite mesure, juste un début. »",
+    choices: [{ t: "Interdire aux enfants de sortir le soir", hint: "Familles ↑ · Démocratie ↓ un peu · Jeunes ↓", news: "« Couvre-feu pour les enfants »", why: "Des villes de France l'ont fait. Les juges l'acceptent seulement si c'est limité." },
+      { t: "Payer des éducateurs et des activités le soir", hint: "Budget ↓ · Jeunes ↑", news: "« Des éducateurs plutôt qu'un couvre-feu »", why: "Aider les jeunes agit sur les causes, mais plus lentement." },
+      { t: "Refuser : il faut attraper les voleurs, pas punir tous les jeunes", hint: "Familles ↓ · Jeunes ↑", news: "« Pas de couvre-feu »", why: "Punir tout le monde touche surtout ceux qui n'ont rien fait." }] },
+  g_secu2: { headline: "Le ministre veut maintenant des caméras qui reconnaissent tous les visages.", quote: "« Après le couvre-feu, c'est la suite logique. »",
+    choices: [{ t: "Mettre ces caméras partout", hint: "Démocratie ↓↓", news: "« Chaque visage est filmé »", why: "L'Europe a presque interdit ces caméras dans la rue en 2024. Une fois installées, on les enlève rarement." },
+      { t: "Quelques caméras, contrôlées par un juge", hint: "Démocratie ↓ un peu", news: "« Des caméras sous contrôle »", why: "Avec des règles et un juge, on évite de surveiller tout le monde." },
+      { t: "Refuser et arrêter le couvre-feu", hint: "Démocratie ↑ · Familles ↓", news: "« Fin du couvre-feu »", why: "Revenir en arrière est difficile : l'exception devient vite une habitude." }] },
+  g_secu3: { headline: "Le ministre veut que les pouvoirs spéciaux de la police deviennent permanents.", quote: "« Ce n'est qu'une petite étape de plus. »",
+    choices: [{ t: "Rendre ces pouvoirs permanents", hint: "Démocratie ↓↓↓", news: "« L'exception devient la règle »", why: "En France, l'état d'urgence de 2015 a duré près de deux ans, puis une partie est entrée dans la loi en 2017." },
+      { t: "Accepter avec une date de fin et un juge", hint: "Démocratie ↓ un peu", news: "« Deux ans maximum »", why: "Une date de fin oblige à revoter la mesure." },
+      { t: "Dire stop et revenir aux règles normales", hint: "Démocratie ↑↑ · Familles ↓", news: "« Stop à l'escalade »", why: "Chaque mesure paraissait petite : ensemble, elles changeaient tout." }] },
+});
+/* Tahitian headwords in the lexicon */
+try { [["Tavana", "Institutions", "Mot tahitien qui désigne le maire d'une commune."], ["Fenua", "Société", "Mot tahitien : la terre, le pays, l'île à laquelle on appartient."], ["Nūnaʻa", "Société", "Mot tahitien : le peuple, la population."]].forEach(([t, th, d]) => { if (!LEX.some(x => x.t === t)) LEX.push({ t, th, d }); }); } catch (e) { }
+/* model sheet: explain the new political rules */
+(function hookModel10() { const base = window.openModel; if (!base) return; window.openModel = function () { base(); const b = document.querySelector(".sheet .btn[data-close]"); if (b) b.insertAdjacentHTML("beforebegin", `<div class="box"><h3>Quelques règles de science politique</h3><ul class="small model-list"><li><b>Lune de miel :</b> juste après une élection, un gouvernement est plus populaire ; cela s'use avec le temps.</li><li><b>Fenêtre d'opportunité :</b> après une grande crise, les élus acceptent plus facilement de voter des réformes (idée du politiste John Kingdon).</li><li><b>Cycle électoral :</b> la tentation de dépenser juste avant le vote, et la facture après (William Nordhaus).</li><li><b>Petits pas :</b> une suite de mesures qui paraissent chacune petites peut réduire beaucoup les libertés.</li></ul></div>`); }; })();
 
 
 /* ================= LIVING ISLAND ================= */
@@ -7554,6 +7761,7 @@ const Scene = (() => {
       ctx.fillStyle = "#F6C453"; ctx.font = "800 26px 'Bricolage Grotesque', sans-serif"; ctx.textAlign = "center"; ctx.fillText(`Année ${S.year}`, W / 2, H / 2 + 4);
       ctx.fillStyle = "#F4F1E8"; ctx.font = "600 10px Figtree, sans-serif"; ctx.fillText(level().name + (S.year === MANDATE + 1 ? " · second mandat" : ""), W / 2, H / 2 + 17); ctx.restore(); ctx.textAlign = "left";
     }
+    if (typeof PREFS !== "undefined" && PREFS.paint && PREFS.paint !== "plat") paint(k, PREFS.paint, now);
     busy = (S.screen === "year" && now - yearBannerAt < 2000) || storm || !!m || confetti.length > 0 || trauma > 0.01 || now < rainbowUntil || Object.values(born).some(b => now - b < 3500);
   }
   /* one floating badge per active crisis, near what caused it */
@@ -7599,6 +7807,74 @@ const Scene = (() => {
       }
     }
     for (let i = confetti.length - 1; i >= 0; i--) { const c = confetti[i]; c.x += c.vx; c.y += c.vy; c.vy += 0.05; R(c.x, c.y, 2, 1.2, c.c); if (c.y > H) confetti.splice(i, 1); }
+  }
+  /* ---- painted looks: post-process over the flat drawing. gouache (matte, opaque), acrylique (bold, thick), pastel (soft, chalky) ---- */
+  const gq = {};
+  function paintTex(k, style) {
+    const key = style + cv.width + "x" + cv.height; if (gq[style] && gq[style].key === key) return gq[style];
+    const mk = () => { const c = document.createElement("canvas"); c.width = cv.width; c.height = cv.height; const g = c.getContext("2d"); g.setTransform(k, 0, 0, k, 0, 0); return [c, g]; };
+    let seed = 7; const rr = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    const variants = [];
+    for (let vI = 0; vI < 3; vI++) {
+    seed = 7 + vI * 7919;
+    const [sc, sg] = mk(); sg.lineCap = "round"; variants.push(sc);
+    const n = style === "pastel" ? 4200 : style === "acrylique" ? 1300 : 1700;
+    for (let i = 0; i < n; i++) {
+      const x = rr() * W, y = rr() * H, region = y < 40 ? "sky" : y < 118 ? (x < 330 ? "hill" : "sky") : y < 136 ? "town" : "water";
+      let len, ang, wd, col;
+      if (style === "pastel") {                 // chalk hatching: short parallel diagonal marks, mostly light
+        len = 2 + rr() * 4; ang = (rr() < 0.5 ? -0.5 : 0.6) + (rr() - 0.5) * 1.2; wd = 1.2 + rr() * 1.6;
+        col = rr() < 0.7 ? `rgba(255,255,255,${0.06 + rr() * 0.08})` : `rgba(0,0,0,${0.03 + rr() * 0.04})`;
+      } else {
+        len = region === "town" ? 2 + rr() * 3 : region === "hill" ? 5 + rr() * 9 : 10 + rr() * 22;
+        ang = region === "hill" ? (x < 165 ? -1.0 : 1.0) * (0.6 + rr() * 0.5) : (rr() - 0.5) * 0.18;
+        const thick = style === "acrylique" ? 1.6 : 1;
+        wd = (region === "town" ? 0.9 + rr() * 0.8 : 1.4 + rr() * 2.4) * thick;
+        col = rr() < 0.5 ? `rgba(255,255,255,${(0.10 + rr() * 0.12) * thick})` : `rgba(0,0,0,${(0.08 + rr() * 0.10) * thick})`;
+      }
+      const ex = x + Math.cos(ang) * len, ey = y + Math.sin(ang) * len, cx = x + Math.cos(ang) * len / 2, cy = y + Math.sin(ang) * len / 2 + (rr() - 0.5) * 1.5;
+      sg.strokeStyle = col; sg.lineWidth = wd; sg.beginPath(); sg.moveTo(x, y); sg.quadraticCurveTo(cx, cy, ex, ey); sg.stroke();
+      if (style === "acrylique" && i % 3 === 0) {   // impasto: a light ridge along the stroke edge
+        sg.strokeStyle = "rgba(255,255,255,0.22)"; sg.lineWidth = 0.5; sg.beginPath(); sg.moveTo(x, y - wd / 2); sg.quadraticCurveTo(cx, cy - wd / 2, ex, ey - wd / 2); sg.stroke(); }
+    }
+    }
+    seed = 7;
+    const [pc, pg] = mk(); pg.setTransform(1, 0, 0, 1, 0, 0); const id = pg.createImageData(pc.width, pc.height), d = id.data, tooth = style === "pastel";
+    const warm = style === "gouache"; for (let i = 0; i < d.length; i += 4) { let v = 228 + Math.floor(rr() * 28); if (tooth && rr() < 0.07) v = 196; d[i] = v; d[i + 1] = v - (warm ? 8 : 3); d[i + 2] = v - (warm ? 24 : 8); d[i + 3] = 255; }
+    pg.putImageData(id, 0, 0);
+    const [vc, vg] = mk(); const rg = vg.createRadialGradient(W / 2, H / 2, H * 0.45, W / 2, H / 2, W * 0.62); rg.addColorStop(0, "rgba(0,0,0,0)"); rg.addColorStop(1, style === "pastel" ? "rgba(255,250,240,0.35)" : "rgba(70,45,20,0.2)"); vg.fillStyle = rg; vg.fillRect(0, 0, W, H);
+    gq[style] = { key, variants, paper: pc, vig: vc }; return gq[style];
+  }
+  function paint(k, style, now) {
+    const T2 = paintTex(k, style); ctx.save(); ctx.setTransform(k, 0, 0, k, 0, 0);
+    /* living painting: the strokes "boil" (3 hand-made variants, ~2.5 per second) and drift gently; still when motion is reduced */
+    const alive = PREFS.livingPaint !== false && !reducedMotion() && q > 0.55, tt = now / 1000;
+    const vi = alive ? Math.floor(now / 400) % 3 : 0, sdx = alive ? Math.sin(tt * 0.45) * 1.3 : 0, sdy = alive ? Math.cos(tt * 0.33) * 0.6 : 0;
+    const wob = alive ? 0.25 * Math.sin(tt * 0.8) : 0, lite = q <= 0.5;   // on a struggling device keep only strokes and paper
+    T2.strokes = T2.variants[vi]; T2.sdx = sdx; T2.sdy = sdy;
+    const op = (o, a) => { ctx.globalCompositeOperation = o; ctx.globalAlpha = a; };
+    const self = (dx, dy) => ctx.drawImage(cv, 0, 0, cv.width, cv.height, dx, dy, W, H);
+    if (style === "pastel") {
+      if (!lite) { op("source-over", 0.4); self(1.1 + wob, 0.7); }                                          // smudged edges
+      op("saturation", 0.28); ctx.fillStyle = "#808080"; ctx.fillRect(0, 0, W, H);                          // powdery, softer colour
+      op("screen", 0.22); ctx.fillStyle = "#F7E9F0"; ctx.fillRect(0, 0, W, H);                              // chalk lightens everything
+      op("source-over", 1); ctx.drawImage(T2.strokes, T2.sdx - 2, T2.sdy - 1, W + 4, H + 2);                                          // chalk hatching
+      op("multiply", 0.5); ctx.drawImage(T2.paper, 0, 0, W, H);                                             // toothy paper
+    } else if (style === "acrylique") {
+      if (!lite) { op("source-over", 0.2); self(0.6 + wob, 0.4); }
+      op("saturation", 0.14); ctx.fillStyle = "#FF2020"; ctx.fillRect(0, 0, W, H);                          // richer, more saturated
+      if (!lite) { op("overlay", 0.32); self(0, 0); }                                                       // strong contrast
+      op("soft-light", 1); ctx.drawImage(T2.strokes, T2.sdx - 2, T2.sdy - 1, W + 4, H + 2);                                           // thick strokes with ridges
+      op("multiply", 0.16); ctx.drawImage(T2.paper, 0, 0, W, H);                                            // canvas weave, barely visible
+      const sh = ctx.createLinearGradient(0, 0, W, H); sh.addColorStop(0, "rgba(255,255,255,0.08)"); sh.addColorStop(0.5, "rgba(255,255,255,0)"); sh.addColorStop(1, "rgba(255,255,255,0.05)");
+      op("screen", 1); ctx.fillStyle = sh; ctx.fillRect(0, 0, W, H);                                        // slight sheen of the varnish
+    } else {
+      if (!lite) { op("source-over", 0.38); self(0.8 + wob, 0.5 + wob); op("overlay", 0.18); self(0, 0); }   // pigment bleed, opaque colour
+      op("soft-light", 1); ctx.drawImage(T2.strokes, T2.sdx - 2, T2.sdy - 1, W + 4, H + 2);
+      op("multiply", 0.4); ctx.drawImage(T2.paper, 0, 0, W, H);                                             // warm paper grain
+    }
+    op("source-over", 1); ctx.drawImage(T2.vig, 0, 0, W, H);
+    ctx.restore();
   }
   function addTrauma(a) { if (!reducedMotion()) trauma = Math.min(1, trauma + a); }
   function freeze(ms) { frozenUntil = performance.now() + ms; }
