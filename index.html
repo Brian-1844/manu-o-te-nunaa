@@ -118,11 +118,12 @@ button:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
 .later > div { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 
 /* intro + year */
-.hero { position: relative; border-radius: 26px; overflow: hidden; background: var(--night); color: var(--night-ink); min-height: 300px; padding: 26px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; }
-.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero { position: relative; border-radius: 26px; overflow: hidden; background: var(--night); color: var(--night-ink); min-height: 0; box-shadow: 0 10px 26px rgba(10,40,48,0.18); padding: 26px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; }
+.hero canvas { position: relative; display: block; width: calc(100% + 52px); margin: -26px -26px 6px; aspect-ratio: 440 / 250; height: auto; }
 .hero > *:not(canvas) { position: relative; }
 .hero .eyebrow { color: var(--sun); }
-.hero h1 { font-size: 52px; line-height: 0.95; font-weight: 800; }
+.hero h1 { font-size: 52px; line-height: 0.95; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.35); }
+.hero p { text-shadow: 0 1px 6px rgba(0,0,0,0.45); }
 .hero p { color: var(--night-soft); font-size: 16px; max-width: 34ch; }
 .rules { display: flex; flex-direction: column; gap: 10px; }
 .rule { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; }
@@ -7878,7 +7879,27 @@ const Scene = (() => {
   }
   function addTrauma(a) { if (!reducedMotion()) trauma = Math.min(1, trauma + a); }
   function freeze(ms) { frozenUntil = performance.now() + ms; }
-  return { update, addTrauma, freeze, quality: () => q };
+  /* ---- home-page painting: the same island at sunset, painted, cropped to fill the hero ---- */
+  let heroCv = null;
+  const HERO = { screen: "hero", g: { b: 62, h: 72, e: 66, n: 80, d: 72 }, grp: { F: 62, J: 62, E: 62, P: 72, C: 62, I: 62 }, flags: { petitHotel: true }, year: 1, idx: 3, queue: [], sits: {}, used: [], diff: "moyen" };
+  function renderHero(target, now) {
+    const r = target.getBoundingClientRect(); if (!r.width || !r.height) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const tw = Math.round(r.width * dpr), th = Math.round(r.height * dpr); if (target.width !== tw || target.height !== th) { target.width = tw; target.height = th; }
+    const sc = Math.max(r.width / W, r.height / H), k = sc * dpr;
+    if (!heroCv) heroCv = document.createElement("canvas");
+    const hw = Math.round(W * k), hh = Math.round(H * k); if (heroCv.width !== hw || heroCv.height !== hh) { heroCv.width = hw; heroCv.height = hh; mtnKey = ""; }
+    const c0 = cv, x0 = ctx, s0 = S, t0 = trauma, mk0 = mtnKey; cv = heroCv; ctx = heroCv.getContext("2d"); S = HERO; trauma = 0; mtnKey = "";
+    try { draw(now); } finally { cv = c0; ctx = x0; S = s0; trauma = t0; mtnKey = ""; }
+    const tx = target.getContext("2d"); tx.setTransform(1, 0, 0, 1, 0, 0);
+    tx.fillStyle = "#0B2E36"; tx.fillRect(0, 0, tw, th);
+    const dx = Math.min(0, Math.max(tw - hw, (tw - hw) * 0.42)), dy = Math.min(0, (th - hh) * 0.3);
+    tx.drawImage(heroCv, dx, dy);
+    const bg = getComputedStyle(target.parentElement).backgroundColor || "rgb(11,46,54)", m = bg.match(/\d+/g) || [11, 46, 54];
+    const gr = tx.createLinearGradient(0, th * 0.78, 0, th); gr.addColorStop(0, `rgba(${m[0]},${m[1]},${m[2]},0)`); gr.addColorStop(1, `rgba(${m[0]},${m[1]},${m[2]},1)`);
+    tx.fillStyle = gr; tx.fillRect(0, 0, tw, th);
+  }
+  return { update, addTrauma, freeze, quality: () => q, renderHero };
 })();
 
 /* illustrated advisers, drawn from the name and role */
@@ -7928,22 +7949,17 @@ function confetti() {
 }
 
 /* hero: a calm island at dusk, drawn once */
+/* the home page is a living painting of Motu Nui at sunset */
+let heroRaf = 0, heroLast = 0;
 function drawHero() {
-  const cv = $("sea"); if (!cv) return;
-  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-  if (!r.width) return;
-  cv.width = r.width * dpr; cv.height = r.height * dpr;
-  const x = cv.getContext("2d"); x.scale(dpr, dpr);
-  const W = r.width, H = r.height;
-  x.fillStyle = "#0E3A44"; x.fillRect(0, 0, W, H);
-  x.fillStyle = "#E8B04B"; x.beginPath(); x.arc(W * 0.76, H * 0.26, 38, 0, Math.PI * 2); x.fill();
-  x.fillStyle = "#2E6B3F"; x.beginPath(); x.moveTo(W * 0.38, H * 0.66); x.quadraticCurveTo(W * 0.5, H * 0.3, W * 0.66, H * 0.66); x.fill();
-  [["#0F7C80", 0.64], ["#0B5F63", 0.74], ["#09474B", 0.86]].forEach(([c, y], i) => {
-    x.fillStyle = c; x.beginPath(); x.moveTo(0, H * y);
-    for (let px = 0; px <= W; px += 8) x.lineTo(px, H * y + Math.sin(px / 38 + i * 1.7) * 6);
-    x.lineTo(W, H); x.lineTo(0, H); x.fill();
-  });
-  x.fillStyle = "rgba(9,40,44,0.45)"; x.fillRect(0, H * 0.55, W, H * 0.45);
+  cancelAnimationFrame(heroRaf);
+  const step = t => {
+    const cv = $("sea"); if (!cv || S.screen !== "intro") { heroRaf = 0; return; }
+    if (t - heroLast > 70) { heroLast = t; Scene.renderHero(cv, t); }
+    if (typeof stillScene === "function" && stillScene()) { heroRaf = 0; return; }
+    heroRaf = requestAnimationFrame(step);
+  };
+  heroRaf = requestAnimationFrame(t => { heroLast = 0; step(t + 100); });
 }
 
 window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
