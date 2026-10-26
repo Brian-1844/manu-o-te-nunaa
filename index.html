@@ -1445,7 +1445,7 @@ const CARDS_A = {
 };
 
 const LETTERS_A = [
-  { from: "Tavana, pêcheur, atoll du Sud",
+  { from: "Tehiva, pêcheur, atoll du Sud",
     text: "Le moteur de mon bateau est mort et le prochain bateau de ravitaillement passe dans un mois. Le pays peut-il m'avancer l'argent d'un moteur neuf ? Je rembourserai avec ma pêche.",
     yes: { t: "Accepter", fx: { b: -2 }, grp: { P: 3, I: 2 }, reply: "Tavana reprend la mer. Il rembourse petit à petit, comme promis." },
     no: { t: "Refuser", fx: {}, grp: { P: -2 }, reply: "Tavana attend un mois sans revenus. Sa famille l'aide comme elle peut." } },
@@ -1764,7 +1764,7 @@ const EVENTS_B = {
         why: "La limitation des mandats oblige le pouvoir à circuler. En Indonésie, après 32 ans de régime Suharto, les révisions constitutionnelles de 1999 à 2002 ont introduit la limitation des mandats présidentiels." },
     ] },
 
-  b_general: { tier: 4, alert: true, mode: "banners", who: "Général Tauatomo", role: "Chef d'état-major", card: "b_armee",
+  b_general: { tier: 4, alert: true, mode: "banners", who: "Général Teraiura", role: "Chef d'état-major", card: "b_armee",
     headline: "Après des semaines de manifestations, le chef de l'armée propose de « rétablir l'ordre » et de « vérifier » le vote.",
     quote: "« Le pays est au bord du chaos. Laissez-moi les commandes trois mois, le temps de remettre de l'ordre. Ensuite, je vous rends tout. »",
     choices: [
@@ -3506,7 +3506,7 @@ const EASY_A = {
   },
 
   letters: [
-    { from: "Tavana, pêcheur, atoll du Sud",
+    { from: "Tehiva, pêcheur, atoll du Sud",
       text: "Le moteur de mon bateau est cassé. Le prochain bateau de ravitaillement passe dans un mois. Le pays peut-il me prêter l'argent d'un moteur neuf ? Je rembourserai avec ma pêche.",
       yes: { t: "Accepter", reply: "Tavana repart pêcher. Il rembourse petit à petit, comme promis." },
       no: { t: "Refuser", reply: "Tavana attend un mois sans gagner d'argent. Sa famille l'aide comme elle peut." } },
@@ -5222,19 +5222,19 @@ const TRAITS = {
   prudent: { n: "Prudent", plus: "Divise par deux les dépassements de ses chantiers.", minus: "Perd 5 de loyauté chaque fois que l'île emprunte." },
   militant: { n: "Militant", plus: "Gagne le double de loyauté quand son projet avance.", minus: "Perd le double quand son projet est ignoré." },
 };
-const FIRST_W = ["Hinatea", "Vaimiti", "Tehani", "Maeva", "Teura", "Rava", "Moea", "Hereiti", "Sylvie", "Tiare"];
-const FIRST_M = ["Teva", "Tamatea", "Heimana", "Manuarii", "Raiarii", "Tavita", "Jean-Marc", "Teiva", "Ariitea", "Kevin"];
-const LAST = ["Teriitehau", "Mahinui", "Tauraa", "Faatau", "Lemaire", "Chan", "Tavaearii", "Hapaitahaa", "Temaiana", "Brunet", "Tuheiava", "Vanaa"];
+const FIRST_W = ["Hinatea", "Vaimiti", "Tehani", "Maeva", "Teura", "Rava", "Moea", "Hereiti", "Sylvie", "Tiare", "Vaitiare", "Heinui"];
+const FIRST_M = ["Teva", "Tamatea", "Heimana", "Manuarii", "Raiarii", "Tavita", "Jean-Marc", "Teiva", "Ariitea", "Kevin", "Tumata", "Hiro"];
+/* characters are fictional: first names only, never real family names */
 const pickR = a => a[Math.floor(rand() * a.length)];
 function newMinister(pid, loyalty = 55) {
   const taken = S.cabinet ? Object.values(S.cabinet).map(m => m.name.split(" ")[0]) : [];
-  const woman = rand() < 0.5, first = pickR((woman ? FIRST_W : FIRST_M).filter(n => !taken.includes(n))) || pickR(woman ? FIRST_W : FIRST_M), last = pickR(LAST);
+  const woman = rand() < 0.5, first = pickR((woman ? FIRST_W : FIRST_M).filter(n => !taken.includes(n))) || pickR(woman ? FIRST_W : FIRST_M);
   const trait = pickR(Object.keys(TRAITS)), P = PORTFOLIOS[pid];
   let comp = 1 + Math.floor(rand() * 3); if (trait === "ambitieux") comp = Math.min(3, comp + 1);
-  return { pid, name: `${first} ${last}`, woman, comp, loy: loyalty, trait, agenda: Math.floor(rand() * P.agendas.length), agendaDone: false, since: S.year || 1 };
+  return { pid, name: first, woman, comp, loy: loyalty, trait, agenda: Math.floor(rand() * P.agendas.length), agendaDone: false, since: S.year || 1 };
 }
 function ensureCabinet() {
-  if (S.cabinet) return;
+  if (S.cabinet) { Object.values(S.cabinet).forEach(m => { if (m && m.name) m.name = m.name.split(" ")[0]; }); if (S.rival) S.rival = String(S.rival).split(" ")[0]; return; }
   S.cabinet = {}; PORT_IDS.forEach(pid => S.cabinet[pid] = newMinister(pid));
   S.capital = 1; S.instab = 0; S.cabReport = []; S.reshuffledYear = 0; S.resignations = 0; S.scandal = null; S.council = null; S.rival = null;
 }
@@ -6569,7 +6569,7 @@ function reversal(c, k) { const fx = {}, grp = {}; for (const x in c.fx || {}) f
 })();
 
 /* ---------- the Assembly changes during the mandate: defections, splits, returns ---------- */
-const successorName = () => { const w = rand() < 0.5; return `${pickR(w ? FIRST_W : FIRST_M)} ${pickR(LAST)}`; };
+const successorName = () => { const w = rand() < 0.5; const taken = S.cabinet ? Object.values(S.cabinet).map(m => m.name) : []; return pickR((w ? FIRST_W : FIRST_M).filter(n => !taken.includes(n))) || pickR(w ? FIRST_W : FIRST_M); };
 function parlYear() {
   ensureParl();
   const P = S.parl, rep = S.crisisReport || (S.crisisReport = []), vs = voteShare();
@@ -7882,19 +7882,20 @@ const Scene = (() => {
   /* ---- home-page painting: the same island at sunset, painted, cropped to fill the hero ---- */
   let heroCv = null;
   const HERO = { screen: "hero", g: { b: 62, h: 72, e: 66, n: 80, d: 72 }, grp: { F: 62, J: 62, E: 62, P: 72, C: 62, I: 62 }, flags: { petitHotel: true }, year: 1, idx: 3, queue: [], sits: {}, used: [], diff: "moyen" };
-  function renderHero(target, now) {
-    const r = target.getBoundingClientRect(); if (!r.width || !r.height) return;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+  function renderHero(target, now, st, opt = {}) {
+    const r = opt.w ? { width: opt.w, height: opt.h } : target.getBoundingClientRect(); if (!r.width || !r.height) return;
+    const dpr = opt.w ? 1 : Math.min(2, window.devicePixelRatio || 1);
     const tw = Math.round(r.width * dpr), th = Math.round(r.height * dpr); if (target.width !== tw || target.height !== th) { target.width = tw; target.height = th; }
     const sc = Math.max(r.width / W, r.height / H), k = sc * dpr;
     if (!heroCv) heroCv = document.createElement("canvas");
     const hw = Math.round(W * k), hh = Math.round(H * k); if (heroCv.width !== hw || heroCv.height !== hh) { heroCv.width = hw; heroCv.height = hh; mtnKey = ""; }
-    const c0 = cv, x0 = ctx, s0 = S, t0 = trauma, mk0 = mtnKey; cv = heroCv; ctx = heroCv.getContext("2d"); S = HERO; trauma = 0; mtnKey = "";
+    const c0 = cv, x0 = ctx, s0 = S, t0 = trauma, mk0 = mtnKey; cv = heroCv; ctx = heroCv.getContext("2d"); S = st || HERO; trauma = opt.trauma || 0; mtnKey = "";
     try { draw(now); } finally { cv = c0; ctx = x0; S = s0; trauma = t0; mtnKey = ""; }
     const tx = target.getContext("2d"); tx.setTransform(1, 0, 0, 1, 0, 0);
     tx.fillStyle = "#0B2E36"; tx.fillRect(0, 0, tw, th);
-    const dx = Math.min(0, Math.max(tw - hw, (tw - hw) * 0.42)), dy = Math.min(0, (th - hh) * 0.3);
+    const dx = Math.min(0, Math.max(tw - hw, (tw - hw) * (opt.fx != null ? opt.fx : 0.42))), dy = Math.min(0, (th - hh) * (opt.fy != null ? opt.fy : 0.3));
     tx.drawImage(heroCv, dx, dy);
+    if (opt.noFade) return;
     const bg = getComputedStyle(target.parentElement).backgroundColor || "rgb(11,46,54)", m = bg.match(/\d+/g) || [11, 46, 54];
     const gr = tx.createLinearGradient(0, th * 0.78, 0, th); gr.addColorStop(0, `rgba(${m[0]},${m[1]},${m[2]},0)`); gr.addColorStop(1, `rgba(${m[0]},${m[1]},${m[2]},1)`);
     tx.fillStyle = gr; tx.fillRect(0, 0, tw, th);
