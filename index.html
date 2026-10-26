@@ -429,6 +429,22 @@ html.big .app, html.big #sheetRoot { zoom: 1.12; }
 .why-fold:not([open]) { padding-top: 6px; padding-bottom: 6px; }
 .route-serious svg { color: #2D5E8C; }
 .route-edu svg { color: var(--lagoon); }
+.isle-tree { position: fixed; left: max(10px, env(safe-area-inset-left)); bottom: max(10px, env(safe-area-inset-bottom)); z-index: 15; width: 84px; height: 84px; padding: 0; border-radius: 50%; border: 3px solid #7A4A2A; background: radial-gradient(circle at 50% 35%, #FBF4E6, #EEDFC4); box-shadow: 0 6px 18px rgba(20,30,30,.25); cursor: pointer; overflow: visible; }
+.isle-tree canvas { width: 70px; height: 91px; display: block; position: absolute; left: 4px; bottom: 2px; transform-origin: 50% 95%; clip-path: circle(39px at 35px 52px); }
+.isle-tree .tree-label { position: absolute; right: -6px; top: -4px; min-width: 26px; height: 22px; padding: 0 5px; border-radius: 999px; background: var(--good); color: #fff; font-size: 12px; font-weight: 800; line-height: 22px; font-variant-numeric: tabular-nums; }
+.isle-tree.tree-bad .tree-label { background: var(--bad); }
+.isle-tree:focus-visible { outline: 3px solid var(--lagoon); outline-offset: 2px; }
+body.has-tree #screen { padding-bottom: 110px; }
+.tree-big { width: min(260px, 70%); aspect-ratio: 400 / 520; display: block; margin: 0 auto; }
+@media (prefers-reduced-motion: no-preference) {
+  .isle-tree canvas { animation: treeSway 7s ease-in-out infinite; }
+  @keyframes treeSway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
+  .isle-tree.tree-pop canvas { animation: treePop .9s cubic-bezier(.3,1.6,.5,1) 1, treeSway 7s ease-in-out .9s infinite; }
+  @keyframes treePop { 0% { transform: scale(.82); } 100% { transform: scale(1); } }
+  .isle-tree.tree-shiver canvas { animation: treeShiver .8s ease-in-out 1, treeSway 7s ease-in-out .8s infinite; }
+  @keyframes treeShiver { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-4deg); } 40% { transform: rotate(3deg); } 60% { transform: rotate(-2deg); } 80% { transform: rotate(1deg); } }
+}
+html.reduce .isle-tree canvas { animation: none !important; }
 
 #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 30; width: 100%; height: 100%; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } .news-title span { opacity: 1 !important; } }
@@ -7776,6 +7792,123 @@ const EDU_LEVELS = [["facile", "Collège", "11–14 ans", "Des mots simples, les
     });
     return r;
   };
+})();
+
+/* ================= PHASE 17 · « L'arbre de l'île » : a painted tree that shows the island's health ================= */
+const TREE_STAGES = [
+  { n: "Une graine qui germe", d: "Votre gouvernement commence. L'arbre vient de sortir de terre." },
+  { n: "Une jeune pousse", d: "L'arbre prend racine. Prenez-en soin : tout est encore fragile." },
+  { n: "Un arbre qui grandit", d: "L'île se porte bien et l'arbre grandit avec elle." },
+  { n: "Un arbre en fleurs", d: "L'île est en bonne santé : les habitants, la nature et la démocratie fleurissent ensemble." },
+  { n: "Un arbre chargé de fruits", d: "Vos efforts portent leurs fruits : l'île est prospère, unie et libre." },
+  { n: "Un arbre qui sèche", d: "Les feuilles jaunissent : quelque chose ne va pas. Regardez quelle jauge baisse." },
+  { n: "Un arbre malade", d: "L'arbre souffre. L'île va mal : il faut agir vite pour la soigner." },
+  { n: "Un arbre mort", d: "L'île n'a pas survécu à cette crise. Une autre partie, un autre arbre ?" },
+];
+function islandHealth() {
+  if (!S || !S.g) return 60;
+  const g = S.g, avgG = GROUPS.reduce((a, G) => a + (S.grp ? S.grp[G.k] : 55), 0) / GROUPS.length;
+  return Math.round(g.h * 0.2 + g.n * 0.2 + g.d * 0.2 + g.e * 0.12 + g.b * 0.13 + avgG * 0.15);
+}
+function treeStage() {
+  if (S.screen === "end") return 7;
+  const h = islandHealth(), total = Math.max(1, YEARS * EVENTS_PER_YEAR), p = Math.max(0, ((S.year - 1) * EVENTS_PER_YEAR + (S.idx || 0)) / total);
+  if (h < 20) return 7; if (h < 32) return 6; if (h < 43) return 5;
+  let st = p < 0.06 ? 0 : p < 0.18 ? 1 : p < 0.38 ? 2 : p < 0.62 ? 3 : 4;
+  if (S.quick) st = p < 0.1 ? 1 : p < 0.35 ? 2 : p < 0.7 ? 3 : 4;
+  if (h < 55) st = Math.min(st, 2); else if (h < 62) st = Math.min(st, 3);
+  if (["final"].includes(S.screen) && h >= 62) st = 4;
+  return st;
+}
+/* ---- the painting ---- */
+function paintTree(cv, stage, opt = {}) {
+  const W = cv.width, H = cv.height, g = cv.getContext("2d"), k = W / 100; let seed = 9 + stage * 31;
+  const rr = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  g.clearRect(0, 0, W, H); g.save(); g.scale(k, k); g.lineCap = "round"; g.lineJoin = "round";
+  const bx = 50, by = 122, dry = stage === 5, sick = stage === 6, dead = stage === 7;
+  const leafA = dry ? ["#C9A23A", "#B8862E", "#9AA040"] : sick ? ["#7E7A4A", "#6B6340", "#8A6A3A"] : ["#2F7A3E", "#3E8E4E", "#4FA35A", "#256B36"];
+  // ground: a painted mound of earth with grass
+  g.fillStyle = "#8A5A36"; g.beginPath(); g.ellipse(bx, by + 2, 30, 7, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#A06C42"; g.beginPath(); g.ellipse(bx - 4, by, 22, 4.5, 0, Math.PI, 0); g.fill();
+  if (!dead) for (let i = 0; i < 14; i++) { const x = bx - 24 + rr() * 48; g.strokeStyle = sick ? "#8A8450" : dry ? "#A9A045" : "#5E9A44"; g.lineWidth = 1; g.beginPath(); g.moveTo(x, by - 1); g.lineTo(x + (rr() - 0.5) * 3, by - 4 - rr() * 3); g.stroke(); }
+  const leaf = (x, y, ang, s, col) => { g.save(); g.translate(x, y); g.rotate(ang); g.fillStyle = col; g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(s * 0.55, -s * 0.42, s, 0); g.quadraticCurveTo(s * 0.55, s * 0.42, 0, 0); g.fill();
+    g.strokeStyle = "rgba(255,255,255,0.25)"; g.lineWidth = 0.5; g.beginPath(); g.moveTo(s * 0.1, 0); g.lineTo(s * 0.85, 0); g.stroke(); if (sick && rr() < 0.5) { g.fillStyle = "#4A3A26"; g.beginPath(); g.arc(s * 0.5, 0, s * 0.08, 0, Math.PI * 2); g.fill(); } g.restore(); };
+  if (stage === 0) {                                     // a sprout with two leaves
+    g.strokeStyle = "#5E8C3A"; g.lineWidth = 2; g.beginPath(); g.moveTo(bx, by - 1); g.quadraticCurveTo(bx - 2, by - 8, bx, by - 14); g.stroke();
+    leaf(bx, by - 14, -2.6, 11, "#5FAE55"); leaf(bx, by - 14, -0.5, 11, "#4FA35A");
+  } else if (stage === 1) {                              // a young shoot
+    g.strokeStyle = "#6B4A2A"; g.lineWidth = 2.6; g.beginPath(); g.moveTo(bx, by - 1); g.quadraticCurveTo(bx + 3, by - 18, bx - 1, by - 34); g.stroke();
+    [[-2.5, 26, 13], [-0.6, 24, 13], [-2.3, 16, 12], [-0.8, 14, 12], [-1.6, 34, 12]].forEach(([a, dy, s], i) => leaf(bx + (i % 2 ? 1.5 : -1), by - dy, a, s, leafA[i % leafA.length]));
+  } else {
+    const big = stage >= 3 && !dead || stage >= 5, th = stage === 2 ? 42 : 58, trunkW = stage === 2 ? 4.5 : 7;
+    // trunk and branches, painted in several strokes
+    const trunk = dead ? "#7C7468" : "#6B4128";
+    for (let s2 = 0; s2 < 3; s2++) { g.strokeStyle = s2 === 1 ? "rgba(255,230,200,0.18)" : s2 === 2 ? "rgba(0,0,0,0.15)" : trunk; g.lineWidth = s2 ? trunkW * 0.35 : trunkW; g.beginPath(); g.moveTo(bx + (s2 === 1 ? -1.2 : s2 === 2 ? 1.4 : 0), by);
+      g.bezierCurveTo(bx - 3, by - th * 0.35, bx + 4, by - th * 0.6, bx, by - th); g.stroke(); }
+    const brs = stage === 2 ? [[-1, 0.55, 14], [1, 0.7, 13], [-1, 0.85, 10]] : [[-1, 0.48, 22], [1, 0.58, 22], [-1, 0.72, 17], [1, 0.82, 16], [0, 1, 10]];
+    const tips = [];
+    brs.forEach(([dir, t, len]) => { const y0 = by - th * t, x0 = bx + (dir ? 0 : 0), x1 = x0 + dir * len, y1 = y0 - len * (dir ? 0.55 : 1);
+      g.strokeStyle = trunk; g.lineWidth = Math.max(1.2, trunkW * 0.45); g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(x0 + dir * len * 0.4, y0 - len * 0.2, x1, y1); g.stroke(); tips.push([x1, y1]); });
+    if (dead) {                                          // bare grey twigs, a few fallen leaves on the ground
+      tips.forEach(([x, y]) => { for (let i = 0; i < 3; i++) { g.strokeStyle = "#8C8478"; g.lineWidth = 0.8; g.beginPath(); g.moveTo(x, y); g.lineTo(x + (rr() - 0.5) * 12, y - 3 - rr() * 7); g.stroke(); } });
+      for (let i = 0; i < 6; i++) leaf(bx - 22 + rr() * 44, by - 1 + rr() * 2, rr() * 6, 6, "#8A6A3A");
+    } else {
+      // crown: clusters of painted leaves around the branch tips
+      const crownR = stage === 2 ? 15 : 22, cy = by - th - (stage === 2 ? 2 : 6), n = stage === 2 ? 46 : (sick ? 30 : 110);
+      g.fillStyle = sick ? "rgba(90,80,50,0.45)" : dry ? "rgba(150,115,40,0.55)" : "#2A6B38";
+      for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2, r = crownR * 0.55; g.beginPath(); g.arc(bx + Math.cos(a) * r * 1.2, cy + Math.sin(a) * r * 0.8, crownR * (0.55 + rr() * 0.15), 0, Math.PI * 2); g.fill(); }
+      g.beginPath(); g.arc(bx, cy, crownR * 0.7, 0, Math.PI * 2); g.fill();
+      for (let i = 0; i < n; i++) { const a = rr() * Math.PI * 2, r = Math.sqrt(rr()) * crownR, x = bx + Math.cos(a) * r * 1.25, y = cy + Math.sin(a) * r * 0.95 + (sick ? rr() * 4 : 0);
+        leaf(x, y, a + (rr() - 0.5) * 1.2 + (sick ? 0.9 : 0), 6 + rr() * 5, leafA[Math.floor(rr() * leafA.length)]); }
+      if (stage === 3) for (let i = 0; i < 18; i++) { const a = rr() * Math.PI * 2, r = Math.sqrt(rr()) * crownR, x = bx + Math.cos(a) * r * 1.2, y = cy + Math.sin(a) * r * 0.9;
+        for (let p = 0; p < 5; p++) { g.save(); g.translate(x, y); g.rotate(p / 5 * Math.PI * 2 + i); g.fillStyle = i % 3 ? "#FFFDF4" : "#F7C6D6"; g.beginPath(); g.ellipse(0, -1.5, 0.9, 1.7, 0, 0, Math.PI * 2); g.fill(); g.restore(); }
+        g.fillStyle = "#F2C14E"; g.beginPath(); g.arc(x, y, 0.6, 0, Math.PI * 2); g.fill(); }
+      if (stage === 4) for (let i = 0; i < 12; i++) { const a = rr() * Math.PI * 2, r = Math.sqrt(rr()) * crownR * 0.9, x = bx + Math.cos(a) * r * 1.2, y = cy + Math.sin(a) * r * 0.85 + 3;
+        g.fillStyle = ["#F08A2C", "#F2C14E", "#E8732C"][i % 3]; g.beginPath(); g.ellipse(x, y, 2.6, 3.1, 0.3, 0, Math.PI * 2); g.fill(); g.fillStyle = "rgba(255,255,255,0.35)"; g.beginPath(); g.ellipse(x - 0.8, y - 1, 0.8, 1, 0, 0, Math.PI * 2); g.fill(); }
+      if (dry || sick) for (let i = 0; i < (sick ? 9 : 6); i++) leaf(bx - 24 + rr() * 48, by - 1 - rr() * 2, rr() * 6, 6, leafA[i % leafA.length]);
+    }
+  }
+  g.restore();
+  // gouache texture over the plant only: soft strokes, then paper grain
+  g.save(); g.globalCompositeOperation = "source-atop";
+  for (let i = 0; i < 260 * (W / 200); i++) { const x = rr() * W, y = rr() * H, l = (2 + rr() * 6) * k, an = -0.7 + (rr() - 0.5); g.strokeStyle = rr() < 0.5 ? `rgba(255,255,255,${0.06 + rr() * 0.1})` : `rgba(0,0,0,${0.05 + rr() * 0.08})`; g.lineWidth = (0.4 + rr() * 0.9) * k; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(an) * l, y + Math.sin(an) * l); g.stroke(); }
+  g.restore();
+}
+/* ---- the corner widget ---- */
+let treeShown = -1, treeHealthShown = null;
+function updateTree() {
+  let w = $("isleTree");
+  if (!w) { document.body.insertAdjacentHTML("beforeend", `<button id="isleTree" class="isle-tree" type="button" hidden><canvas width="200" height="260" aria-hidden="true"></canvas><span class="tree-label"></span></button>`); w = $("isleTree"); w.onclick = openTree; }
+  const show = !!S && S.year > 0 && !["intro", "difficulty", "president", "promises"].includes(S.screen) && PREFS.tree !== false;
+  w.hidden = !show; document.body.classList.toggle("has-tree", show); if (!show) return;
+  const st = treeStage(), h = islandHealth();
+  w.setAttribute("aria-label", `L'arbre de l'île : ${TREE_STAGES[st].n.toLowerCase()}. Santé de l'île ${h} sur 100. Touchez pour en savoir plus.`);
+  w.querySelector(".tree-label").textContent = `${h}`;
+  w.classList.toggle("tree-bad", st >= 5);
+  if (st === treeShown) return;
+  const grew = treeShown >= 0 && st > treeShown && st <= 4, fell = treeShown >= 0 && st >= 5 && st !== treeShown;
+  treeShown = st; paintTree(w.querySelector("canvas"), st);
+  if (!reducedMotion() && (grew || fell)) { w.classList.remove("tree-pop", "tree-shiver"); void w.offsetWidth; w.classList.add(grew ? "tree-pop" : "tree-shiver"); }
+  if (grew || fell) { const el = $("sceneCap"); if (el && S.screen !== "event") { el.textContent = "L'arbre de l'île : " + TREE_STAGES[st].n.toLowerCase() + "."; el.className = "fresh"; } }
+}
+function openTree() {
+  const st = treeStage(), h = islandHealth(), g = S.g;
+  const parts = [["Bonheur", g.h], ["Nature", g.n], ["Démocratie", g.d], ["Économie", g.e], ["Budget", g.b]].sort((a, b) => a[1] - b[1]);
+  openSheet(`<div class="sheet-head"><span class="pill">L'arbre de l'île</span>${closeBtn}</div>
+    <h2 id="sheetTitle">${esc(TREE_STAGES[st].n)}</h2>
+    <canvas id="treeBig" class="tree-big" width="400" height="520" aria-hidden="true"></canvas>
+    <p>${esc(TREE_STAGES[st].d)}</p>
+    <div class="box"><div class="grp-row"><span>Santé de l'île</span><div class="grp-bar"><div class="grp-fill${h < 43 ? " low" : ""}" style="width:${h}%"></div></div><b>${h}</b></div>
+      <p class="small">L'arbre grandit avec le temps, mais seulement si l'île va bien. Il fleurit au-dessus de 55, porte des fruits au-dessus de 62. Sous 43, il sèche ; sous 32, il tombe malade.</p></div>
+    <div class="box"><h3>Ce qui le nourrit le moins</h3><p class="small">${parts.slice(0, 2).map(([l, v]) => `<b style="color:var(--ink)">${l}</b> (${v})`).join(" et ")}. ${parts[0][1] < 40 ? "Soigner cette jauge aidera l'arbre à reprendre des forces." : "Continuez ainsi, sans oublier ces deux-là."}</p></div>
+    <button class="btn" data-close="1">Fermer</button>`);
+  try { paintTree($("treeBig"), st); } catch (e) { }
+}
+(function hookTree() {
+  const r = window.render; window.render = function () { const out = r.apply(this, arguments); try { updateTree(); } catch (e) { } return out; };
+  const bS = window.openSettings; window.openSettings = function () { bS(); const list = document.querySelector(".set-list"); if (!list || $("treeRow")) return;
+    list.insertAdjacentHTML("beforeend", `<button class="set-row" type="button" id="treeRow" aria-pressed="${PREFS.tree === false ? "false" : "true"}"><span><b>L'arbre de l'île</b><span class="small">Un arbre peint, en bas de l'écran, qui montre la santé de l'île.</span></span><span class="switch" aria-hidden="true"></span></button>`);
+    $("treeRow").onclick = () => { PREFS.tree = PREFS.tree === false; savePrefs(); $("treeRow").setAttribute("aria-pressed", PREFS.tree ? "true" : "false"); updateTree(); }; };
 })();
 
 /* ================= PHASE 12 · Motu Nui, a fictional Pacific island (optional « contexte local » for classes in French Polynesia) ================= */
