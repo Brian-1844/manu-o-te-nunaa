@@ -375,6 +375,17 @@ html.big .app, html.big #sheetRoot { zoom: 1.12; }
 .hero::after { content: ""; display: block; height: 8px; margin-top: 12px; background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%208%22%3E%3Cpath%20d%3D%22M4%200%208%204%204%208%200%204Z%20M12%200%2016%204%2012%208%208%204Z%22%20fill%3D%22%23B4472C%22/%3E%3Cpath%20d%3D%22M8%202%2010%204%208%206%206%204Z%22%20fill%3D%22%23E8B04B%22/%3E%3C/svg%3E") left center / 16px 8px repeat-x; opacity: .8; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #screen .card::after { opacity: .14; filter: invert(1) hue-rotate(180deg); } }
 :root[data-theme="dark"] #screen .card::after { opacity: .14; filter: invert(1) hue-rotate(180deg); }
+.isle-line { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; padding: 10px 12px; border-radius: 14px; background: color-mix(in srgb, var(--good) 10%, transparent); color: var(--ink); font-size: 14px; line-height: 1.35; }
+.isle-line svg { color: var(--good); flex: none; }
+.isle-line span { flex: 1 1 200px; min-width: 0; }
+.isle-line.neg { background: color-mix(in srgb, var(--ink-soft) 12%, transparent); }
+.isle-line.neg svg { color: var(--ink-soft); }
+.isle-line .linkbtn { font-size: 13px; min-height: 32px; }
+.quarter-list { display: flex; flex-direction: column; gap: 8px; }
+.q-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--sun); flex: none; }
+.q-dot.low { background: var(--bad); } .q-dot.high { background: var(--good); }
+.quarter-mood .grp-row { margin-bottom: 6px; }
+.q-thumb { width: 100%; aspect-ratio: 150 / 62; border-radius: 16px; display: block; background: #8FD3E0; }
 
 #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 30; width: 100%; height: 100%; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } .news-title span { opacity: 1 !important; } }
@@ -5595,6 +5606,7 @@ const Sound = (() => {
     thunder(at = 0.4) { burst(at, 2.4, 150, 0.24); burst(at + 0.02, 0.3, 1100, 0.05); },
     gavel() { burst(0, 0.18, 300, 0.25); note(110, 0, 0.18, 0.18, "triangle"); burst(0.22, 0.14, 300, 0.18); },
     alarm() { [0, 0.35, 0.7].forEach(t => { note(NOTES.A4, t, 0.25, 0.08, "square"); note(NOTES.D5, t + 0.15, 0.2, 0.07, "square"); }); },
+    swish(neg) { [0.45, 0.85, 1.25].forEach((t, i) => burst(t, 0.34, (neg ? 560 : 820) - i * 60, 0.03, "bandpass")); },
     pageTurn() { burst(0, 0.16, 2400, 0.05, "bandpass"); },
     suspend() { if (ac && ac.state === "running") ac.suspend(); },
     resume() { if (ac && ac.state === "suspended" && PREFS.sound) ac.resume(); },
@@ -5692,6 +5704,7 @@ function openSettings() {
       ${"speechSynthesis" in window ? row("tts", "Lecture à voix haute", "Un bouton « Écouter » lit chaque carte avec la voix de l'appareil.") + row("autoRead", "Lecture automatique", "Chaque nouvelle carte est lue dès qu'elle s'affiche.") : ""}
       ${row("ticker", "Radio Motu Nui", "Le bandeau d'actualités sous l'île.")}
       ${row("big", "Texte plus grand", "Agrandit tout le texte du jeu.")}
+      ${row("localCtx", "Contexte local : Polynésie française", "Pour les classes de Polynésie : les textes citent les vraies institutions (loi du pays, CESEC, haut-commissaire) et les îles du fenua. Désactivé : Motu Nui est une île imaginaire du Pacifique.")}
     </div>
     <button class="btn" data-close="1">Fermer</button>`, ".set-row");
   document.querySelectorAll("[data-pref]").forEach(b => b.onclick = () => {
@@ -5867,7 +5880,7 @@ const VIEWS = {
     <section class="hero"><canvas id="sea" aria-hidden="true"></canvas>
       <span class="eyebrow">Jeu de gouvernance</span>
       <h1>Manu o te nūnaʻa</h1>
-      <p>Motu Nui, une île du Pacifique de 40 000 habitants. Vous en êtes le président. Deux mandats, huit années, des crises venues de toute l'histoire du monde. Saurez-vous gouverner sans sacrifier la démocratie ?</p>
+      <p>Motu Nui, une île ${LOC("imaginaire ", "")}du Pacifique de 40 000 habitants. Vous en êtes le président. Deux mandats, huit années, des crises venues de toute l'histoire du monde. Saurez-vous gouverner sans sacrifier la démocratie ?</p>
     </section>
     <section class="card">
       <h2 style="font-size:20px">Comment jouer</h2>
@@ -5891,7 +5904,7 @@ const VIEWS = {
       <details class="classmode"><summary>Mode classe (facultatif)</summary>
         <p class="small">Entrez le même code que vos camarades, puis choisissez le même niveau : vous aurez les mêmes ministres et les mêmes tirages au début de chaque année. À la fin, comparez vos cartes de résultats.</p>
         <label class="class-label" for="classCode">Code de classe</label>
-        <input id="classCode" class="lex-search" maxlength="16" autocomplete="off" autocapitalize="characters" placeholder="Par exemple : 4EB-PAPEETE" value="${esc(S.seed || "")}">
+        <input id="classCode" class="lex-search" maxlength="16" autocomplete="off" autocapitalize="characters" placeholder="Par exemple : 4EB-MOTU" value="${esc(S.seed || "")}">
       </details>
     </article>`,
 
@@ -6197,7 +6210,7 @@ function financeBox() {
     <div class="row small"><span>− Carburant de la centrale</span><b>${E.fuel} U</b></div>
     ${S.screen === "invest" ? `<div class="row small"><span>− Chantiers choisis</span><b>${E.proj} U</b></div>` : ""}
     <div class="row"><span><b>Reste</b></span><b class="${E.left < 0 ? "neg" : "pos"}">${E.left} U</b></div>
-    <p class="small">1 U = 100 millions F CFP. Échelle : le budget réel de la Polynésie (238,7 milliards F CFP en 2026) divisé par sept. ${E.left < 0 ? "Si le reste est négatif, l'île emprunte : la jauge Budget baisse." : ""}</p></div>`;
+    <p class="small">${LOC("1 U = une unité de budget. L'échelle est celle d'une petite collectivité d'îles du Pacifique.", "1 U = 100 millions F CFP. Échelle : le budget réel de la Polynésie (238,7 milliards F CFP en 2026) divisé par sept.")} ${E.left < 0 ? "Si le reste est négatif, l'île emprunte : la jauge Budget baisse." : ""}</p></div>`;
 }
 function condBar(a) { const st = assetState(a); return `<div class="cbar"><div class="cfill cs-${st}" style="width:${a.build ? 100 : a.cond}%"></div></div>`; }
 function assetRow(id, actions) {
@@ -6233,7 +6246,7 @@ function openCabinet() {
   const canShuffle = S.reshuffledYear !== S.year && S.year > 0;
   openSheet(`<div class="sheet-head"><span class="pill">Gouvernement</span>${closeBtn}</div>
     <h2 id="sheetTitle">Votre Conseil des ministres</h2>
-    <p class="small">Sept ministres, comme le minimum légal en Polynésie française. Un ministre très fidèle (loyauté au-dessus de 60) vous rapporte du capital politique ; sous 20, il fait fuiter des secrets ou démissionne. Capital politique : <b style="color:var(--ink)">${S.capital} point${S.capital > 1 ? "s" : ""}</b> · instabilité : ${S.instab || 0}.</p>
+    <p class="small">${LOC("Sept ministres : un gouvernement resserré, comme dans beaucoup de petits territoires.", "Sept ministres, comme le minimum légal en Polynésie française.")} Un ministre très fidèle (loyauté au-dessus de 60) vous rapporte du capital politique ; sous 20, il fait fuiter des secrets ou démissionne. Capital politique : <b style="color:var(--ink)">${S.capital} point${S.capital > 1 ? "s" : ""}</b> · instabilité : ${S.instab || 0}.</p>
     ${S.lastReshuffle && S.reshuffledYear === S.year ? `<div class="rep rep-warn"><span>${esc(S.lastReshuffle)}</span></div>` : ""}
     <div class="assets">${PORT_IDS.map(pid => { const M = minister(pid), P = PORTFOLIOS[pid], A = P.agendas[M.agenda]; return `<div class="asset">
       <div class="who"><span class="avatar" aria-hidden="true">${avatar(M.name, P.title)}</span><div style="min-width:0"><div class="who-name">${esc(M.name)}</div><div class="who-role">${esc(P.title)}</div></div></div>
@@ -6241,7 +6254,7 @@ function openCabinet() {
       <span class="small"><b style="color:var(--ink)">Son projet :</b> ${esc(A.t)} ${M.agendaDone ? "✓" : ""} · soutenu par : ${esc(GROUPS.find(G => G.k === P.group).label)}</span>
       ${canShuffle ? `<button class="act-btn" data-reshuffle="${pid}"><b>Remplacer ce ministre</b><span>Son groupe −5, l'instabilité augmente. Une fois par an.</span></button>` : ""}
     </div>`; }).join("")}</div>
-    <div class="box"><h3>Pourquoi c'est important</h3><p>Entre 2004 et 2011, la Polynésie française a connu 10 motions de défiance et 13 gouvernements : des élus changeaient de camp et de petits groupes faisaient la majorité. Un gouvernement instable a du mal à voter ses lois et son budget.</p></div>
+    <div class="box"><h3>Pourquoi c'est important</h3><p>${LOC("Quand des élus changent souvent de camp et que de petits groupes font la majorité, les gouvernements tombent les uns après les autres. Cela arrive dans de vrais parlements.", "Entre 2004 et 2011, la Polynésie française a connu 10 motions de défiance et 13 gouvernements : des élus changeaient de camp et de petits groupes faisaient la majorité.")} Un gouvernement instable a du mal à voter ses lois et son budget.</p></div>
     <button class="btn" data-close="1">Fermer</button>`);
   document.querySelectorAll("[data-reshuffle]").forEach(b => b.onclick = () => reshuffle(b.dataset.reshuffle));
 }
@@ -6535,7 +6548,7 @@ function cesecAvis(c) {
   if (score <= -4) return { k: "defav", label: "défavorable", mod: -0.05, why: "Patronat, syndicats ou associations craignent les effets du texte sur l'emploi ou la vie quotidienne." };
   return { k: "res", label: "réservé", mod: 0, why: "Le conseil demande des précisions et des mesures d'accompagnement." };
 }
-function cesecBox(a) { return a ? `<div class="box cesec"><span class="eyebrow">Avis du CESEC · ${esc(a.label)}</span><p class="small">${esc(a.why)} Le Conseil économique, social, environnemental et culturel donne un avis : il n'a pas de droit de veto, mais les élus l'écoutent.</p></div>` : ""; }
+function cesecBox(a) { return a ? `<div class="box cesec"><span class="eyebrow">Avis du ${LOC("Conseil économique et social", "CESEC")} · ${esc(a.label)}</span><p class="small">${esc(a.why)} ${LOC("Ce conseil, qui représente les entreprises, les salariés et les associations,", "Le Conseil économique, social, environnemental et culturel")} donne un avis : il n'a pas de droit de veto, mais les élus l'écoutent.</p></div>` : ""; }
 (function hookChoose() {
   const base = window.choose;
   window.choose = function (i) {
@@ -6556,11 +6569,11 @@ function reversal(c, k) { const fx = {}, grp = {}; for (const x in c.fx || {}) f
     if (!c || !scale) return r;
     if (mode === "decret" && rand() < 0.5) {
       const rv = reversal(c, 0.6); rv.fx.d = (rv.fx.d || 0) + 2;
-      S.pending.push({ at: turnNo() + 1, fx: rv.fx, grp: rv.grp, scale: 1, msg: `Le haut-commissaire a déféré votre décret « ${shortT(c.t, 60)} » au tribunal administratif, qui l'a annulé : un texte qui relève de l'Assemblée ne peut pas être imposé par décret. Le représentant de l'État ne juge pas la politique menée, seulement sa légalité.` });
+      S.pending.push({ at: turnNo() + 1, fx: rv.fx, grp: rv.grp, scale: 1, msg: `${LOC("Le représentant de l'État", "Le haut-commissaire")} a déféré votre décret « ${shortT(c.t, 60)} » au tribunal administratif, qui l'a annulé : un texte qui relève de l'Assemblée ne peut pas être imposé par décret. Le représentant de l'État ne juge pas la politique menée, seulement sa légalité.` });
       S.legal = (S.legal || 0) + 1; learn("f_controles");
     } else if (c.law && (c.fx || {}).d <= -5 && rand() < 0.5) {
       const rv = reversal(c, 0.5); rv.fx.d = (rv.fx.d || 0) + 3;
-      S.pending.push({ at: turnNo() + 2, fx: rv.fx, grp: rv.grp, scale: 1, msg: `Saisi par des élus de l'opposition, le Conseil d'État annule une partie de la loi du pays « ${shortT(c.t, 60)} » : elle porte une atteinte excessive aux libertés. En Polynésie, les lois du pays peuvent être contrôlées par le Conseil d'État avant d'entrer en vigueur.` });
+      S.pending.push({ at: turnNo() + 2, fx: rv.fx, grp: rv.grp, scale: 1, msg: LOC(`Saisie par des élus de l'opposition, la Cour suprême annule une partie de la loi de l'île « ${shortT(c.t, 60)} » : elle porte une atteinte excessive aux libertés. Même votée par les élus, une loi doit respecter les droits garantis par la Constitution.`, `Saisi par des élus de l'opposition, le Conseil d'État annule une partie de la loi du pays « ${shortT(c.t, 60)} » : elle porte une atteinte excessive aux libertés. En Polynésie, les lois du pays peuvent être contrôlées par le Conseil d'État avant d'entrer en vigueur.`) });
       S.legal = (S.legal || 0) + 1; learn("f_controles");
     }
     if (S.last) S.last.cesec = S.cesecNow || null;
@@ -6583,7 +6596,7 @@ function parlYear() {
   // municipal elections mid-mandate
   if ((S.year === 3 || S.year === 7) && !S["muni" + S.year]) {
     S["muni" + S.year] = true;
-    if (vs < 46) { const k = Math.min(P.maj - 10, 3 + Math.floor(rand() * 3)); P.maj -= k; P.ni += k; rep.push({ kind: "bad", msg: `Municipales : votre parti perd plusieurs communes. ${k} élus quittent votre groupe pour fonder leur propre groupe. Ce n'est pas une fiction : en 2026, après des municipales difficiles, une quinzaine d'élus ont quitté le parti au pouvoir en Polynésie pour former un nouveau groupe.` }); learn("f_defiance"); }
+    if (vs < 46) { const k = Math.min(P.maj - 10, 3 + Math.floor(rand() * 3)); P.maj -= k; P.ni += k; rep.push({ kind: "bad", msg: `Municipales : votre parti perd plusieurs communes. ${k} élus quittent votre groupe pour fonder leur propre groupe. ${LOC("Cela arrive vraiment : après une défaite locale, des élus quittent parfois le parti au pouvoir pour former leur propre groupe.", "Ce n'est pas une fiction : en 2026, après des municipales difficiles, une quinzaine d'élus ont quitté le parti au pouvoir en Polynésie pour former un nouveau groupe.")}` }); learn("f_defiance"); }
     else rep.push({ kind: "good", msg: "Municipales : vos candidats résistent bien. Les tavana (maires) de votre camp soutiennent le gouvernement." });
   }
   // constructive motion of no confidence
@@ -6626,7 +6639,7 @@ function answerDefiance(kind) {
     if (kind === "ouverture") { P.maj += P.b; P.b = 0; }
     P.maj = Math.max(0, P.maj - Math.round(f.defect / 2)); P.ni += Math.round(f.defect / 2);
     apply({ d: 2 }, {}, d);
-    C.out = `${note}Résultat : ${against} voix pour la motion. Il en fallait ${ADOPT} (trois cinquièmes) : elle échoue. Depuis 2011, ce seuil élevé et l'obligation de nommer un successeur rendent les renversements plus rares. Entre 2004 et 2011, la Polynésie avait connu 10 motions de défiance et 13 gouvernements.`;
+    C.out = `${note}Résultat : ${against} voix pour la motion. Il en fallait ${ADOPT} (trois cinquièmes) : elle échoue. ${LOC("Ce seuil élevé et l'obligation de nommer un successeur rendent les renversements plus rares : ils protègent la stabilité du gouvernement.", "Depuis 2011, ce seuil élevé et l'obligation de nommer un successeur rendent les renversements plus rares. Entre 2004 et 2011, la Polynésie avait connu 10 motions de défiance et 13 gouvernements.")}`;
   }
   S.motion = null; S.censure = 0; learn("f_defiance");
   C.answered = kind; C.d = d; render();
@@ -6644,7 +6657,7 @@ function answerEngager() {
   const against = f.a + (agree ? f.b : 0) + f.ni + f.defect;
   apply({ d: -2 }, {}, d);
   if (against >= ADOPT) { S.successor = successorName(); S.ending = "censure"; C.out = `Vous engagez la responsabilité du gouvernement. En cinq jours, l'opposition s'entend sur un budget et sur ${S.successor} : la motion de renvoi réunit ${against} voix sur ${ADOPT} nécessaires. Votre gouvernement tombe.`; }
-  else { if (st) st.curing = true; C.out = `Vous engagez la responsabilité du gouvernement (le « 49-3 polynésien »). L'opposition dispose de cinq jours pour déposer une motion de renvoi avec un autre budget et un nouveau président, et réunir ${ADOPT} voix. Elle n'y arrive pas (${against} voix possibles${agree ? "" : ", faute d'accord sur un nom"}) : le budget est considéré comme adopté. C'est ce qui s'est passé en Polynésie en juillet 2026.`; }
+  else { if (st) st.curing = true; C.out = `Vous engagez la responsabilité du gouvernement${LOC("", " (le « 49-3 polynésien »)")}. L'opposition dispose de cinq jours pour déposer une motion de renvoi avec un autre budget et un nouveau président, et réunir ${ADOPT} voix. Elle n'y arrive pas (${against} voix possibles${agree ? "" : ", faute d'accord sur un nom"}) : le budget est considéré comme adopté.${LOC(" Plusieurs parlements connaissent ce mécanisme, comme l'article 49.3 en France.", " C'est ce qui s'est passé en Polynésie en juillet 2026.")}`; }
   learn("f_defiance"); C.answered = "engager"; C.d = d; render();
 }
 (function hookAnswerSituation() {
@@ -6706,7 +6719,7 @@ function coalitionView() {
     let h = sit();
     if (C && C.answered === "engager") h = h.replace(">Laisser faire</span>", ">Budget passé en force</span>");
     if (C && C.id === "budget" && !C.answered && S.sits.budget && S.sits.budget.level >= 2)
-      h = h.replace('<div class="choices">', `<div class="choices"><button class="choice" data-sit="engager"><span class="choice-title">Engager la responsabilité du gouvernement (le « 49-3 polynésien »)</span><span class="choice-hint">L'opposition a 5 jours pour réunir ${ADOPT} voix, un autre budget et un nouveau président · sinon le budget passe · Démocratie ↓ un peu</span></button>`);
+      h = h.replace('<div class="choices">', `<div class="choices"><button class="choice" data-sit="engager"><span class="choice-title">Engager la responsabilité du gouvernement${LOC("", " (le « 49-3 polynésien »)")}</span><span class="choice-hint">L'opposition a 5 jours pour réunir ${ADOPT} voix, un autre budget et un nouveau président · sinon le budget passe · Démocratie ↓ un peu</span></button>`);
     return h;
   };
   const res = VIEWS.result;
@@ -6813,7 +6826,7 @@ VIEWS.difficulty = () => {
       <div class="seg" role="radiogroup" aria-label="Nombre de joueurs">${[[1, "Seul·e"], [2, "À deux"], [3, "À trois"]].map(([n, l]) => `<button type="button" role="radio" data-p8="group" data-v="${n}" aria-checked="${groupDraft === n}">${l}</button>`).join("")}</div>
       ${ROLES[groupDraft] ? `<ul class="roles">${ROLES[groupDraft].map(([r, d]) => `<li><b>${r}</b> : ${d}</li>`).join("")}</ul><p class="small">Changez de rôle à chaque séance.</p>` : ""}
       <label class="class-label" for="classCode">Code de classe (facultatif)</label>
-      <input id="classCode" class="lex-search" maxlength="16" autocomplete="off" autocapitalize="characters" placeholder="Par exemple : 4EB-PAPEETE" value="${esc(S.seed || "")}">
+      <input id="classCode" class="lex-search" maxlength="16" autocomplete="off" autocapitalize="characters" placeholder="Par exemple : 4EB-MOTU" value="${esc(S.seed || "")}">
       <p class="small">Avec le même code et le même niveau, tous les élèves ont les mêmes ministres et les mêmes tirages en début d'année.</p>
       <button class="linkbtn" data-p8="guide">Guide pour l'enseignant</button>
     </div>` : ""}
@@ -6906,12 +6919,12 @@ function openModel() {
     <h2 id="sheetTitle">Comment marche le jeu ?</h2>
     <p>Un jeu est une simplification. Voici ses règles, et ce qu'il laisse de côté. Les règles d'un jeu sont aussi une façon de voir le monde : vous avez le droit de les critiquer.</p>
     <div class="box"><h3>Les jauges et les groupes</h3><p class="small">Cinq jauges de 0 à 100 (Budget, Bonheur, Économie, Nature, Démocratie) et six groupes d'habitants. Chaque choix les fait bouger ; certains effets arrivent plus tard. Touchez une jauge pour voir ce qui l'a fait bouger. Les effets négatifs grossissent un peu chaque année : gouverner devient plus difficile.</p></div>
-    <div class="box"><h3>L'Assemblée</h3><p class="small">40 élus. Votre liste a reçu une prime d'un tiers des sièges, comme en Polynésie (19 sur 57). Une loi passe plus facilement si vous avez beaucoup de sièges, une Démocratie élevée, des groupes satisfaits, des ministres loyaux et un avis favorable du CESEC. Le hasard compte aussi : un vote n'est jamais certain.</p></div>
+    <div class="box"><h3>L'Assemblée</h3><p class="small">40 élus. Votre liste a reçu une prime d'un tiers des sièges${LOC(", comme dans plusieurs systèmes à prime majoritaire (Polynésie française, élections municipales en France)", ", comme en Polynésie (19 sur 57)")}. Une loi passe plus facilement si vous avez beaucoup de sièges, une Démocratie élevée, des groupes satisfaits, des ministres loyaux et un avis favorable du ${LOC("Conseil économique et social", "CESEC")}. Le hasard compte aussi : un vote n'est jamais certain.</p></div>
     <div class="box"><h3>Ce qui peut vous renverser</h3><p class="small">Une motion de défiance (24 voix sur 40, avec un successeur), la faillite (Budget à 0), une révolution (Bonheur à 10), l'autocratie (Démocratie à 15) ou la défaite à l'élection.</p></div>
     <div class="box"><h3>Ce que le jeu simplifie</h3><ul class="small model-list">
       <li>Les habitants sont rangés en six groupes ; en vrai, chacun appartient à plusieurs groupes à la fois.</li>
       <li>Les effets sont des nombres fixes ; en vrai, personne ne connaît à l'avance les conséquences d'une politique.</li>
-      <li>Le président décide presque tout ; en vrai, le Pays partage les compétences avec l'État et les communes, et les décisions prennent des mois.</li>
+      <li>${LOC("Le président décide presque tout ; en vrai, le gouvernement de l'île partage les compétences avec l'État et les communes, et les décisions prennent des mois.", "Le président décide presque tout ; en vrai, le Pays partage les compétences avec l'État et les communes, et les décisions prennent des mois.")}</li>
       <li>Les coûts des équipements sont souvent des estimations ; les chiffres marqués d'une source dans les fiches sont réels.</li>
       <li>Les partis de Motu Nui sont inventés. Le jeu ne représente aucun parti réel de Polynésie.</li>
     </ul></div>
@@ -6942,7 +6955,7 @@ function openGuide() {
     <h2 id="sheetTitle">Guide pour l'enseignant·e</h2>
     <p class="small">Manu o te nūnaʻa · éducation morale et civique · de la fin du collège au lycée (le niveau Facile convient dès 10 ans).</p>
     <h3>Objectifs</h3><ul class="small model-list">
-      <li>Comprendre les institutions de la Polynésie française : Assemblée, prime majoritaire, motion de défiance, CESEC, haut-commissaire, Conseil d'État.</li>
+      <li>${LOC("Comprendre les institutions d'une île autonome : Assemblée, prime majoritaire, motion de défiance, conseil économique et social, représentant de l'État, juge constitutionnel. Pour les classes de Polynésie, l'option « Contexte local » des réglages remplace ces noms par les vraies institutions du Pays.", "Comprendre les institutions de la Polynésie française : Assemblée, prime majoritaire, motion de défiance, CESEC, haut-commissaire, Conseil d'État.")}</li>
       <li>Comprendre qu'une décision publique a des gagnants, des perdants et des effets à long terme.</li>
       <li>Reconnaître les signes qui menacent une démocratie (décrets, presse muselée, répression) et les contre-pouvoirs qui la protègent.</li>
     </ul>
@@ -7042,7 +7055,7 @@ EASY.cards.g_marae = { title: "Le marae", def: "Un lieu sacré polynésien : une
 try { if (!LEX.some(x => x.t === "Tarahoi")) LEX.push({ t: "Tarahoi", th: "Institutions", d: "Place de Papeete où se trouvent l'Assemblée de la Polynésie française, un bâtiment moderne de 1969 construit à l'emplacement du palais de la reine Pomare IV, et le haut-commissariat.", pf: "Dans le jeu, l'Assemblée de Motu Nui s'inspire de ce bâtiment : un grand toit plat et un toit courbe au-dessus de la salle des séances." }); } catch (e) { }
 
 /* credit line for the ornaments in the model sheet */
-(function hookModel() { const base = window.openModel; if (!base) return; window.openModel = function () { base(); const b = document.querySelector(".sheet .btn[data-close]"); if (b) b.insertAdjacentHTML("beforebegin", `<div class="box"><h3>Les décors</h3><p class="small">Les bâtiments s'inspirent de vrais lieux : l'Assemblée de la place Tarahoi à Papeete (1969), le temple octogonal de Papetoai à Moorea, le marae dessiné sans effet magique ni cérémonie inventée. Les ornements des cartes sont inspirés du tifaifai, l'art du patchwork polynésien. Les motifs du tatouage (tatau) et les tiki ne sont pas utilisés, par respect pour leur valeur sacrée.</p></div>`); }; })();
+(function hookModel() { const base = window.openModel; if (!base) return; window.openModel = function () { base(); const b = document.querySelector(".sheet .btn[data-close]"); if (b) b.insertAdjacentHTML("beforebegin", `<div class="box"><h3>Les décors</h3><p class="small">${LOC("Motu Nui est une île imaginaire, mais ses bâtiments s'inspirent de vrais lieux du Pacifique : une assemblée moderne des années 1960, un temple protestant octogonal, un marae dessiné sans effet magique ni cérémonie inventée.", "Les bâtiments s'inspirent de vrais lieux : l'Assemblée de la place Tarahoi à Papeete (1969), le temple octogonal de Papetoai à Moorea, le marae dessiné sans effet magique ni cérémonie inventée.")} Les ornements des cartes sont inspirés du tifaifai, l'art du patchwork polynésien. Les motifs du tatouage (tatau) et les tiki ne sont pas utilisés, par respect pour leur valeur sacrée.</p></div>`); }; })();
 
 /* ================= PHASE 10 — political-science depth and replay ================= */
 /* 1. Honeymoon, rally and the cost of ruling, layered on the vote estimate */
@@ -7097,12 +7110,12 @@ function answerPreelec(kind) {
 
 /* 4. The legislative path, shown under each law */
 function lawPath(state) {
-  const steps = [["Conseil des ministres", "ok"], ["Avis du CESEC", S.cesecNow ? (S.cesecNow.k === "defav" ? "warn" : "ok") : "ok"], ["Vote de l'Assemblée", state === "rejected" ? "no" : "ok"], ["Recours possible au Conseil d'État", state === "rejected" ? "off" : "wait"], ["Promulgation", state === "rejected" ? "off" : "ok"]];
-  return `<ol class="lawpath" aria-label="Le chemin d'une loi du pays">${steps.map(([t, s2]) => `<li class="lp-${s2}">${esc(t)}</li>`).join("")}</ol>`;
+  const steps = [["Conseil des ministres", "ok"], [LOC("Avis du Conseil économique et social", "Avis du CESEC"), S.cesecNow ? (S.cesecNow.k === "defav" ? "warn" : "ok") : "ok"], ["Vote de l'Assemblée", state === "rejected" ? "no" : "ok"], [LOC("Recours possible devant la Cour suprême", "Recours possible au Conseil d'État"), state === "rejected" ? "off" : "wait"], ["Promulgation", state === "rejected" ? "off" : "ok"]];
+  return `<ol class="lawpath" aria-label="Le chemin d'une ${LOC("loi de l'île", "loi du pays")}">${steps.map(([t, s2]) => `<li class="lp-${s2}">${esc(t)}</li>`).join("")}</ol>`;
 }
 (function hookLawViews() {
   const asm = VIEWS.assembly; VIEWS.assembly = () => { let h = asm(); const i = h.indexOf('<div class="choices">'); return h.slice(0, i) + lawPath("rejected") + h.slice(i); };
-  const res = VIEWS.result; VIEWS.result = () => { let h = res(); if (S.lastLaw && S.last && S.last.mode !== "ref" && S.last.mode !== "abandon" && level().vote) { const i = h.lastIndexOf("<button"); h = h.slice(0, i) + `<div class="box"><span class="eyebrow">Le chemin de la loi du pays</span>${lawPath("passed")}${S.windowBoost ? `<p class="small">Fenêtre d'opportunité : ${esc(S.policyWindow.why)}, les élus étaient plus prêts à voter.</p>` : ""}</div>` + h.slice(i); }
+  const res = VIEWS.result; VIEWS.result = () => { let h = res(); if (S.lastLaw && S.last && S.last.mode !== "ref" && S.last.mode !== "abandon" && level().vote) { const i = h.lastIndexOf("<button"); h = h.slice(0, i) + `<div class="box"><span class="eyebrow">Le chemin de la ${LOC("loi de l'île", "loi du pays")}</span>${lawPath("passed")}${S.windowBoost ? `<p class="small">Fenêtre d'opportunité : ${esc(S.policyWindow.why)}, les élus étaient plus prêts à voter.</p>` : ""}</div>` + h.slice(i); }
     if (S.last && S.lastRumeurOffer) { const i = h.lastIndexOf("<button"); h = h.slice(0, i) + `<button class="btn ghost" data-p10="rumeur">Faire l'atelier « Rumeur sur le fenua » (3 minutes)</button>` + h.slice(i); } return h; };
   const ev = VIEWS.event; VIEWS.event = () => { let h = ev(); if (windowOpen() && level().vote) h = h.replace(/<span class="badge">Vote de l'Assemblée<\/span>/g, `<span class="badge">Vote de l'Assemblée</span><span class="badge win">Fenêtre d'opportunité</span>`); return h; };
   const sit = VIEWS.situation; VIEWS.situation = () => (S.sitCur && S.sitCur.id === "preelec" ? preelecView() : sit());
@@ -7240,6 +7253,198 @@ try { [["Tavana", "Institutions", "Mot tahitien qui désigne le maire d'une comm
 /* model sheet: explain the new political rules */
 (function hookModel10() { const base = window.openModel; if (!base) return; window.openModel = function () { base(); const b = document.querySelector(".sheet .btn[data-close]"); if (b) b.insertAdjacentHTML("beforebegin", `<div class="box"><h3>Quelques règles de science politique</h3><ul class="small model-list"><li><b>Lune de miel :</b> juste après une élection, un gouvernement est plus populaire ; cela s'use avec le temps.</li><li><b>Fenêtre d'opportunité :</b> après une grande crise, les élus acceptent plus facilement de voter des réformes (idée du politiste John Kingdon).</li><li><b>Cycle électoral :</b> la tentation de dépenser juste avant le vote, et la facture après (William Nordhaus).</li><li><b>Petits pas :</b> une suite de mesures qui paraissent chacune petites peut réduire beaucoup les libertés.</li></ul></div>`); }; })();
 
+/* ================= PHASE 11 · THE BRUSH: every decision leaves a painted touch on the island ================= */
+const MARKS = {
+  fete: ["h", "Les familles font la fête sur la plage."], banderole: ["h", "Des habitants mécontents déploient une banderole."],
+  marche: ["e", "Un nouveau marché anime le front de mer."], volet: ["e", "Une boutique baisse le rideau."],
+  fleurs: ["n", "Des fleurs et de jeunes arbres poussent sur le rivage."], nappe: ["n", "Une tache sale flotte sur le lagon."],
+  urne: ["d", "Les habitants font la queue pour voter."], police: ["d", "Une barrière de police bloque la place."],
+  linge: ["F", "Les enfants jouent près du linge qui sèche."], valises: ["F", "Une famille part chercher une vie ailleurs."],
+  jeunes: ["J", "Les jeunes jouent au ballon sur la plage."], graffiti: ["J", "Un mur couvert de tags : les jeunes s'ennuient."],
+  chorale: ["C", "Une chorale chante devant le temple."], veillee: ["C", "Les croyants veillent en silence, inquiets."],
+  conteneurs: ["E", "Les conteneurs s'empilent sur le quai."], vendre: ["E", "Un commerce est à vendre."],
+  pirogues: ["P", "Les pirogues des pêcheurs sortent sur le lagon."], filets: ["P", "Les filets sèchent, les bateaux restent à terre."],
+  goelette: ["I", "Une goélette ravitaille les îles éloignées."], sos: ["I", "Les îles éloignées se sentent oubliées."],
+  chantier: ["b", "Faute d'argent, un chantier s'arrête."],
+};
+const MARK_OF = { h: ["fete", "banderole"], e: ["marche", "volet"], n: ["fleurs", "nappe"], d: ["urne", "police"], F: ["linge", "valises"], J: ["jeunes", "graffiti"],
+  C: ["chorale", "veillee"], E: ["conteneurs", "vendre"], P: ["pirogues", "filets"], I: ["goelette", "sos"], b: [null, "chantier"] };
+const MARK_TTL = 6, MARK_MAX = 10;
+/* the strongest visible effect of a decision → one touch */
+function pickMark(d) {
+  if (!d) return null;
+  const c = [];
+  for (const k in d.g || {}) { const v = d.g[k]; if (!MARK_OF[k] || !v) continue; const kind = MARK_OF[k][v > 0 ? 0 : 1]; if (kind) c.push({ kind, s: Math.abs(v) * (k === "b" ? 0.6 : 1), neg: v < 0 }); }
+  for (const k in d.grp || {}) { const v = d.grp[k]; if (!MARK_OF[k] || !v) continue; c.push({ kind: MARK_OF[k][v > 0 ? 0 : 1], s: Math.abs(v) * 0.9, neg: v < 0 }); }
+  const ok = c.filter(x => x.s >= 2).sort((a, b) => b.s - a.s);
+  if (!ok.length) return null;
+  const have = new Set((S.marks || []).map(m => m.k));
+  const fresh = ok.find(x => !have.has(x.kind) && x.s >= ok[0].s * 0.7);       // prefer a touch the island does not show yet
+  return fresh || ok[0];
+}
+function addMark(kind, neg) {
+  const tn = turnNo(), slot = MARKS[kind][0];
+  S.marks = (S.marks || []).filter(m => m.until >= tn && MARKS[m.k] && MARKS[m.k][0] !== slot);
+  S.markSeq = (S.markSeq || 0) + 1;
+  const m = { id: S.markSeq, k: kind, until: tn + MARK_TTL, neg: !!neg };
+  S.marks.push(m); while (S.marks.length > MARK_MAX) S.marks.shift();
+  return m;
+}
+function paintDecision(flagsBefore) {
+  if (!S.last || S.last.mode === "abandon") return;
+  const fresh = Object.keys(S.flags).filter(k => S.flags[k] && !flagsBefore[k] && SCENE_TEXT[k]);
+  let br = null;
+  if (fresh.length) { const k = fresh[0], neg = ["lagonVide", "barriere", "autoritaire", "presse", "secession", "submerge", "blanchi", "surpeche", "cite"].includes(k); br = { flag: k, neg, cap: SCENE_TEXT[k] }; }
+  else { const pk = pickMark(S.last.d); if (pk) { const m = addMark(pk.kind, pk.neg); br = { id: m.id, k: m.k, neg: m.neg, cap: MARKS[m.k][1] }; } }
+  S.last.brush = br;
+  if (!br) return;
+  Scene.brush(br);
+  const el = $("sceneCap"); if (el) { el.textContent = "Sur l'île : " + br.cap; el.className = "fresh"; }
+  Scene.update();
+  if (S.screen === "result" && !document.querySelector(".isle-line")) { const rows = document.querySelectorAll("article.card .btn-row"), row = rows[rows.length - 1]; if (row) { row.insertAdjacentHTML("beforebegin", isleLine(br)); bindReplay(); } }
+}
+function isleLine(b) { return `<div class="isle-line ${b.neg ? "neg" : ""}"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.4 2.6a2 2 0 0 1 2.9 2.9L11 15.8 8.2 13z"/><path d="M8 13.5c-2.2 0-4 1.8-4 4 0 1.4-.8 2.5-2 3 4.5.6 8-1.2 8-5"/></svg><span><b>Sur l'île :</b> ${esc(b.cap)}</span><button type="button" class="linkbtn" data-p11="replay">Revoir le coup de pinceau</button></div>`; }
+function bindReplay() { document.querySelectorAll('[data-p11="replay"]').forEach(btn => btn.onclick = () => { const b = S.last && S.last.brush; if (!b) return; const sc = $("scene"); if (sc && sc.getBoundingClientRect().top < 0) window.scrollTo({ top: 0, behavior: reducedMotion() ? "auto" : "smooth" }); Scene.brush(b); }); }
+(function hookBrush() {
+  const baseR = window.resolve;
+  window.resolve = function (i, sc, mode) { const before = { ...S.flags }; const r = baseR(i, sc, mode); try { paintDecision(before); } catch (e) { } return r; };
+  const baseRef = window.runReferendum;
+  window.runReferendum = function (i) { const before = { ...S.flags }; const r = baseRef(i); try { paintDecision(before); } catch (e) { } return r; };
+  const res = VIEWS.result;
+  VIEWS.result = () => {
+    let h = res(); const b = S.last && S.last.brush; if (!b) return h;
+    const i = h.lastIndexOf('<div class="btn-row">'); if (i < 0) return h;
+    const line = isleLine(b);
+    
+    return h.slice(0, i) + line + h.slice(i);
+  };
+  const baseB = window.bind;
+  window.bind = function () {
+    const r = baseB.apply(this, arguments);
+    bindReplay();
+    return r;
+  };
+})();
+
+/* ================= PHASE 13 · a tappable island: visit each community's quarter ================= */
+const QUARTERS = {
+  C: { name: "Le quartier du temple", lead: "Ici vivent surtout les croyants. Le temple rythme la semaine : chorales, fêtes, entraide.", wants: "Être respectés dans leur foi, garder les traditions, l'entraide entre familles. Ils n'aiment pas qu'on touche aux libertés religieuses ni qu'on oublie les plus pauvres.", pts: [[62, 116, 24]], marks: ["chorale", "veillee"] },
+  F: { name: "Les maisons du front de mer", lead: "Ici vivent les familles : enfants, grands-parents, cousins sous le même toit.", wants: "Des prix raisonnables, un logement, une école et un dispensaire proches, de la sécurité. Les hausses de prix et les impôts les touchent en premier.", pts: [[96, 120, 20], [248, 120, 26]], marks: ["linge", "valises", "fete", "banderole"] },
+  J: { name: "L'école et le terrain de sport", lead: "Ici se retrouvent les jeunes, après les cours ou le week-end.", wants: "Des études utiles, du travail sur l'île pour ne pas devoir partir, du sport, de la culture et qu'on les écoute.", pts: [[128, 120, 22]], marks: ["jeunes", "graffiti"] },
+  E: { name: "Le port et les commerces", lead: "Ici travaillent les entreprises : commerçants, armateurs, hôteliers.", wants: "Des règles stables, des impôts modérés, des routes, un port et de l'électricité qui marchent. Les nouvelles taxes et les grèves les inquiètent.", pts: [[352, 136, 26], [230, 124, 18], [317, 112, 18]], marks: ["conteneurs", "vendre", "marche", "volet"] },
+  P: { name: "Le lagon", lead: "Ici travaillent les pêcheurs. Le lagon les nourrit, eux et une bonne partie de l'île.", wants: "Un lagon propre et poissonneux, des zones de pêche respectées, du carburant pas trop cher. La surpêche et la pollution les ruinent.", pts: [[250, 166, 34], [120, 166, 30]], marks: ["pirogues", "filets", "fleurs", "nappe"] },
+  I: { name: "Le motu et les îles du Sud", lead: "Là-bas, loin de la capitale, vivent les habitants des îles éloignées.", wants: "Des bateaux et des avions réguliers, l'eau, l'électricité, Internet, et ne pas être oubliés quand on décide à la capitale.", pts: [[404, 184, 30]], marks: ["goelette", "sos"] },
+};
+const QUARTER_OF = Object.fromEntries(GROUPS.map(G => [G.k, G.label]));
+const moodWord = v => v >= 70 ? "Heureux" : v >= 55 ? "Plutôt satisfaits" : v >= 40 ? "Inquiets" : v >= 25 ? "Mécontents" : "En colère";
+function pickQuarter(lx, ly) {
+  /* public equipment first (small targets), then the Assembly, then the nearest quarter */
+  for (const id of ASSET_IDS) { const p = Scene.posOf(id); if (p && Math.hypot(lx - p[0], ly - p[1]) < 7.5) return { kind: "asset", id }; }
+  if (lx > 176 && lx < 216 && ly > 94 && ly < 132) return { kind: "assembly" };
+  let best = null, bd = 1e9;
+  for (const k in QUARTERS) for (const [x, y, r] of QUARTERS[k].pts) { const d = Math.hypot(lx - x, (ly - y) * 1.4) - r; if (d < bd) { bd = d; best = k; } }
+  return bd < 26 ? { kind: "group", k: best } : null;
+}
+function openQuarter(k) {
+  const Q = QUARTERS[k], v = S.grp[k], tn = turnNo();
+  Scene.highlight(Q.pts);
+  const marks = (S.marks || []).filter(m => m.until >= tn && Q.marks.includes(m.k)).map(m => MARKS[m.k][1]);
+  const promised = (typeof promiseObjs === "function" ? promiseObjs() : []).length;
+  openSheet(`<div class="sheet-head"><span class="pill">Quartier</span>${closeBtn}</div>
+    <h2 id="sheetTitle">${esc(Q.name)}</h2>
+    <canvas class="q-thumb" id="qThumb" aria-hidden="true"></canvas>
+    <p>${esc(Q.lead)}</p>
+    <div class="box quarter-mood"><div class="grp-row"><span>${esc(QUARTER_OF[k])}</span><div class="grp-bar"><div class="grp-fill${v < 35 ? " low" : ""}" style="width:${v}%"></div></div><b>${v}</b></div><p class="small"><b style="color:var(--ink)">${moodWord(v)}.</b> ${v < 35 ? "S'ils restent aussi mécontents, ils voteront contre vous et pourraient descendre dans la rue." : v >= 70 ? "Ils parlent de vous en bien : c'est un appui précieux à l'élection." : "Leur soutien peut encore basculer."}</p></div>
+    ${marks.length ? `<div class="box"><h3>Sur l'île en ce moment</h3><ul class="small model-list">${marks.map(m => `<li>${esc(m)}</li>`).join("")}</ul></div>` : ""}
+    <div class="box"><h3>Ce qui les a fait bouger</h3>${whyList("grp:" + k, 5)}</div>
+    <div class="box"><h3>Ce qu'ils attendent</h3><p class="small">${esc(Q.wants)}</p></div>
+    <div class="btn-row"><button class="btn ghost" type="button" data-q13="poll">Toute l'opinion</button><button class="btn" data-close="1">Fermer</button></div>`);
+  const b = document.querySelector('[data-q13="poll"]'); if (b) b.onclick = () => openPoll();
+  try { /* a painted close-up of the quarter, cut from the island */
+    const src = $("sceneCv"), th = $("qThumb"), [W, H] = Scene.size(), k = src.width / W, [x, y] = Q.pts[0], w = 150, h = 62;
+    const sx = Math.max(0, Math.min(W - w, x - w / 2)), sy = Math.max(0, Math.min(H - h, y - h * 0.62));
+    th.width = Math.round(w * k); th.height = Math.round(h * k); th.getContext("2d").drawImage(src, sx * k, sy * k, w * k, h * k, 0, 0, th.width, th.height);
+  } catch (e) { const th = $("qThumb"); if (th) th.remove(); }
+}
+function openQuarters() {
+  openSheet(`<div class="sheet-head"><span class="pill">L'île</span>${closeBtn}</div>
+    <h2 id="sheetTitle">Visiter un quartier</h2>
+    <p class="small">Vous pouvez aussi toucher l'île directement : un quartier, l'Assemblée ou un équipement.</p>
+    <div class="quarter-list">${GROUPS.map(G => { const v = S.grp[G.k]; return `<button class="set-row" type="button" data-quarter="${G.k}"><span><b>${esc(QUARTERS[G.k].name)}</b><span class="small">${esc(G.label)} · ${moodWord(v).toLowerCase()} (${v})</span></span><span class="q-dot${v < 35 ? " low" : v >= 70 ? " high" : ""}" aria-hidden="true"></span></button>`; }).join("")}</div>
+    <button class="btn" data-close="1">Fermer</button>`, ".set-row");
+  document.querySelectorAll("[data-quarter]").forEach(b => b.onclick = () => openQuarter(b.dataset.quarter));
+}
+(function hookIsland() {
+  const cv = $("sceneCv"); if (!cv) return;
+  const logical = e => { const r = cv.getBoundingClientRect(), [W, H] = Scene.size(); return [(e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * H]; };
+  cv.addEventListener("click", e => {
+    if (!S || !S.year || S.screen === "intro" || $("sheetRoot").innerHTML) return;
+    const hit = pickQuarter(...logical(e)); if (!hit) return;
+    if (typeof Sound === "object") Sound.tap();
+    if (hit.kind === "group") openQuarter(hit.k);
+    else if (hit.kind === "asset") { const p = Scene.posOf(hit.id); Scene.highlight([[p[0], p[1], 14]]); openAssets(); }
+    else { Scene.highlight([[196, 114, 24]]); openCabinet(); }
+  });
+  cv.addEventListener("mousemove", e => { cv.style.cursor = S && S.year && pickQuarter(...logical(e)) ? "pointer" : ""; });
+  const foot = document.querySelector(".scene-foot"), ab = $("assetBtn");
+  if (foot && ab && !$("quarterBtn")) {
+    ab.insertAdjacentHTML("beforebegin", `<button class="hud-btn" id="quarterBtn" type="button"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Quartiers</button>`);
+    $("quarterBtn").onclick = () => openQuarters();
+  }
+  cv.setAttribute("aria-label", "L'île de Motu Nui, qui change selon vos décisions. Touchez un quartier pour le visiter, ou utilisez le bouton Quartiers.");
+})();
+/* first time on the island: a gentle hint in the caption */
+(function hookHint() {
+  const base = window.startYear;
+  window.startYear = function (...a) { const r = base.apply(this, a); try { if (S.year === 1 && !S.quarterHint) { S.quarterHint = true; const el = $("sceneCap"); if (el) { el.textContent = "Touchez l'île pour visiter un quartier."; el.className = "fresh"; } } } catch (e) { } return r; };
+})();
+
+/* ================= PHASE 12 · Motu Nui, a fictional Pacific island (optional « contexte local » for classes in French Polynesia) ================= */
+function LOC(general, local) { return typeof PREFS !== "undefined" && PREFS.localCtx ? local : general; }
+const GENERAL_TEXT = {"CARDS.vieChere.histTitle": "Exemple réel : Polynésie française", "CARDS.vieChere.hist": "En Polynésie française, en 2022, l'Autorité polynésienne de la concurrence a critiqué le transport de carburant : trois entreprises se partageaient le marché et appliquaient un prix plancher sans base légale. En 2025, des experts ont proposé d'interdire réellement les exclusivités d'importation.", "CARDS.longTerme.hist": "Tokelau a remplacé en 2012 ses générateurs diesel par des panneaux solaires et des batteries. À Bora Bora, en Polynésie française, la climatisation par l'eau de mer d'un hôtel consomme 90 % d'électricité en moins et a été remboursée en 7 ans.", "CARDS.communs.histTitle": "Exemple réel : Polynésie française", "CARDS.parite.histTitle": "Exemple réel : Polynésie française", "CARDS.conscience.histTitle": "Exemple réel : Polynésie française", "CARDS.conscience.hist": "La loi de 1905 sur la séparation des Églises et de l'État ne s'applique pas en Polynésie française. Les cultes y relèvent des décrets Mandel de 1939. La liberté de conscience reste garantie.", "CARDS.inegalites.how.1": "À Tahiti et Moorea, en Polynésie française (2009), l'indice de Gini était de 0,40, contre 0,29 en France métropolitaine. Plus il est élevé, plus la société est inégale.", "CARDS.a_taxeSante.how.1": "En Polynésie française, 51 % des adultes étaient obèses en 2021 (40 % en 2010) et 12,2 % de la population a du diabète ; les maladies liées au tabac coûtent environ 40 milliards F CFP de soins par an.", "CARDS.a_bilinguisme.def": "Une école bilingue enseigne dans deux langues, par exemple autant d'heures en français que dans la langue de l'île. Le but est que les enfants maîtrisent bien les deux.", "CARDS.a_bilinguisme.how.0": "En Polynésie française, le modèle « paritaire » donne 13 h 30 de français et 13 h 30 de reo mā'ohi par semaine dans des écoles expérimentales.", "CARDS.a_bilinguisme.how.1": "En Polynésie française, en 2021, il y avait 17 écoles bilingues expérimentales, avec plus de demandes que de places ; une loi du pays de 2021 organise l'enseignement des langues polynésiennes.", "CARDS.a_bilinguisme.how.2": "En Polynésie française, on en débat. Pour : la langue se transmet de moins en moins dans les familles, et le programme ReoC3 (2011–2014) est cité comme un succès contre l'illettrisme. Contre : il manque d'enseignants, et un syndicat doute de l'intérêt là où les enfants ne parlent pas tahitien.", "CARDS.a_bilinguisme.histTitle": "Exemple réel : Polynésie française", "CARDS.a_bilinguisme.hist": "En Polynésie française, les premières expériences ont commencé en 2008, et la première année a été difficile faute d'enseignants. Aux Marquises, beaucoup de familles parlent bien le français et le marquisien ; à Tahiti, c'est souvent la maîtrise des deux langues qui est faible. Au collège, seul celui d'Afareaitu (Moorea) applique la parité des heures.", "CARDS.a_bilinguisme.quiz.0": "Dans le modèle bilingue paritaire de Polynésie française, combien d'heures de tahitien par semaine ?", "CARDS.a_indivision.how.1": "En Polynésie française, 48,5 % des propriétés privées sont en indivision, soit 57,6 % des terres émergées.", "CARDS.a_indivision.histTitle": "Exemple réel : Polynésie française", "CARDS.a_indivision.hist": "En Polynésie française, un tribunal foncier fonctionne à Tahiti depuis octobre 2017. Une loi du 26 juillet 2019 permet, pour 10 ans, de partager une terre par « souche » (branche familiale) devant le juge, ou chez le notaire à la majorité des deux tiers. Des juristes proposent aussi la fiducie, une gestion collective de la terre, mais il faudrait pour cela une loi du pays.", "CARDS.a_indivision.quiz.0": "Quelle part des terres émergées de Polynésie française est en indivision ?", "CARDS.a_continuite.how.1": "En Polynésie française, depuis 2021, une délégation de service public aérien couvre 34 îles, financée par une taxe sur chaque billet ; Air Tahiti a reçu 450 millions F CFP d'aide en 2021.", "CARDS.a_continuite.histTitle": "Exemple réel : Polynésie française", "CARDS.a_continuite.hist": "En Polynésie française, la compagnie Air Moana est arrivée en 2023 face à Air Tahiti. Après une année 2024 difficile, son chiffre d'affaires de l'été 2025 a plus que doublé (+108 %). La concurrence se fait surtout sur les lignes rentables ; les îles peu peuplées restent desservies grâce à la délégation de service public. Par la mer, environ 2 millions de passagers et 461 481 tonnes de fret ont voyagé entre les îles en 2023.", "CARDS.a_protectionSociale.how.1": "En Polynésie française, il y avait 5,6 actifs par retraité en 1995 et 1,95 en 2017 ; l'âge de départ est passé de 60 à 62 ans (réforme de 2018, appliquée en 2023).", "CARDS.a_protectionSociale.how.2": "La Polynésie française n'a pas d'assurance chômage : quand on perd son emploi, la famille prend le relais. En créer une protégerait mieux, mais ajouterait des cotisations.", "CARDS.a_protectionSociale.histTitle": "Exemple réel : Polynésie française", "CARDS.a_prison.how.1": "En 2022, à la prison de Nuutania (Tahiti, Polynésie française), 65 à 70 % des détenus étaient en détention provisoire ; les affaires de drogue étaient les plus fréquentes.", "CARDS.a_prison.histTitle": "Exemple réel : Polynésie française", "CARDS.a_violences.how.1": "En Polynésie française, environ 1 500 victimes sont recensées chaque année par la police et la gendarmerie ; en 2022, les condamnations étaient 3,5 fois plus fréquentes qu'en métropole.", "CARDS.a_violences.histTitle": "Exemple réel : Polynésie française", "CARDS.a_violences.hist": "En sept ans, ces violences ont fait 18 morts en Polynésie française : 10 femmes, 3 enfants et 5 hommes. En novembre 2025, le gouvernement polynésien a ouvert un Observatoire des violences faites aux femmes et annoncé un « Conseil des hommes bienveillants » pour faire évoluer les comportements.", "CARDS.a_evasan.how.0": "En Polynésie française, il y a environ 1 200 évacuations urgentes par an, pour environ 12 millions d'euros de transport payés par la caisse de prévoyance sociale.", "CARDS.a_evasan.how.1": "En Polynésie française, sur 118 îles (dont 76 habitées), 48 sont accessibles en avion et 4 seulement ont un hôpital : Tahiti, Moorea, Raiatea et Nuku Hiva.", "CARDS.a_evasan.histTitle": "Exemple réel : Polynésie française", "CARDS.a_airesMarines.how.2": "Les récifs coralliens de Polynésie française rapportent environ 55 milliards F CFP par an et font vivre plus de 21 000 emplois.", "CARDS.a_airesMarines.histTitle": "Exemple réel : Polynésie française", "CARDS.a_airesMarines.hist": "En 2025, la Polynésie française a classé toute sa zone économique, environ 4,8 millions de km², en aire marine protégée, dont 1,1 million de km² en protection forte. En juin 2026, elle a ajouté 500 000 km² au nord-est des Marquises et au sud des Australes. Les pêcheurs du large s'inquiètent, des élus des Marquises ont demandé un couloir de pêche, et il n'y a qu'un patrouilleur ; des ONG ont réuni 15 millions de dollars pour la surveillance.", "CARDS.a_fuiteCerveaux.how.1": "En Polynésie française, environ 800 jeunes de 18 à 25 ans partent chaque année ; 20 500 personnes sont parties entre 2017 et 2022, mais 2 100 Polynésiens sont rentrés (+33 %).", "CARDS.a_fuiteCerveaux.hist": "Aux Tonga, l'argent envoyé par les émigrés représente environ 37 à 39 % de la richesse produite (2021–2024, calcul à partir des chiffres du FMI). Le FMI note aussi qu'une émigration persistante freine la croissance et crée des pénuries de main-d'œuvre. En Polynésie française, à la rentrée 2026, il manquait surtout des professeurs d'anglais et de mathématiques.", "CARDS.a_fuiteCerveaux.quiz.0": "Combien de jeunes de 18 à 25 ans quittent la Polynésie française chaque année ?", "CARDS.c_essais.histTitle": "Exemples réels : Polynésie française et îles Marshall", "CARDS.c_essais.hist": "La France a réalisé 193 essais en Polynésie française de 1966 à 1996 (46 atmosphériques jusqu'en 1974). La loi Morin (2010) n'a indemnisé que 3 % des dossiers jusqu'en 2017, puis 44,2 % ; environ 108 millions d'euros ont été versés jusqu'en 2025, et un texte adopté à l'unanimité par l'Assemblée nationale en janvier 2026 élargit la reconnaissance. Aux îles Marshall, 67 essais américains (1946-1958) ont été suivis d'un accord de 150 millions de dollars en 1986, puis de 700 millions en 2023.", "CARDS.e_financement.hist": "Aux Tuamotu, en Polynésie française, 17 abris de survie (2021-2025) ont coûté 6 milliards F CFP, payés moitié par l'État, moitié par le gouvernement polynésien. Le câble Natitua Sud a été financé environ à 24 % par l'État et 45 % par le gouvernement polynésien. Aux Tonga, un prêt de 2008 pour reconstruire Nuku'alofa représentait encore un quart du PIB en 2023.", "CARDS.f_prime.histTitle": "Exemple réel : Polynésie française", "CARDS.f_defiance.def": "Le moyen pour l'Assemblée de renverser le gouvernement. En Polynésie française, elle est « constructive » : elle doit proposer le nom du nouveau président.", "CARDS.f_defiance.histTitle": "Exemple réel : Polynésie française", "CARDS.f_defiance.hist": "Entre 2004 et 2011, la Polynésie française a connu 10 motions de défiance et 13 gouvernements : des élus changeaient de camp (les « transfuges »). La réforme de 2011 a rendu les renversements plus difficiles. En juillet 2026, le président de la Polynésie française a fait passer un budget rejeté en engageant sa responsabilité : faute d'accord dans l'opposition, aucune motion n'a été déposée à temps.", "CARDS.f_defiance.quiz.0": "Que doit contenir une motion de défiance en Polynésie française ?", "CARDS.f_controles.how.0": "Le représentant de l'État contrôle la légalité des actes et peut les déférer au tribunal administratif (en Polynésie française : le haut-commissaire).", "CARDS.f_controles.how.1": "La Cour suprême peut annuler une loi de l'île contraire à la Constitution, aux lois organiques ou aux engagements internationaux (en Polynésie française : le Conseil d'État, pour les « lois du pays »).", "CARDS.f_controles.how.2": "Le Conseil économique et social, formé de membres issus des entreprises, des salariés et des associations, donne des avis sur les textes économiques, sociaux et culturels (en Polynésie française : le CESEC, 48 membres).", "CARDS.f_controles.quiz.0": "Que contrôle le représentant de l'État ?", "CARDS.f_controles.terms.0": "Représentant de l'État", "CARDS.f_controles.terms.1": "Loi de l'île", "CARDS.g_marae.histTitle": "Exemple réel : Polynésie française", "CARDS.g_marae.hist": "En Polynésie française, le marae de Taputapuātea, à Raiatea, est inscrit au patrimoine mondial de l'UNESCO depuis 2017. Le marae Arahurahu, à Paea (Tahiti), possède une plateforme de 3 mètres de haut. Le temple protestant de Papetoai, à Moorea, a été construit à l'emplacement d'un ancien marae.", "EVENTS.a_taxeSucre.choices.1.why": "Au Mexique, une taxe d'un peso par litre (environ +10 % sur le prix, 2014) a fait baisser les achats de boissons taxées de 7,6 % en deux ans : un effet réel mais modeste. Il faut aussi veiller à ce que l'argent de ces taxes serve vraiment à la prévention, ce qui n'est pas toujours le cas.", "EVENTS.a_taxeSucre.choices.2.why": "Une campagne coûte peu et ne fâche personne, mais seule, elle change peu les habitudes. Dans plusieurs îles du Pacifique, beaucoup d'adolescents boivent un soda chaque jour, et le diabète touche une grande partie de la population.", "EVENTS.a_ecole.choices.0.why": "Dans plusieurs territoires insulaires, le nombre d'élèves baisse d'année en année, et les gouvernements revoient la « carte scolaire ». Regrouper coûte moins cher, mais éloigne l'école des familles, surtout dans les îles.", "EVENTS.a_ecole.choices.2.why": "Dans certaines îles du Pacifique, des écoles bilingues enseignent autant d'heures en français que dans la langue de l'île, et il y a souvent plus de demandes que de places. Le plus dur est de trouver des enseignants, et certains doutent de l'intérêt là où les enfants ne parlent plus la langue de l'île.", "EVENTS.a_indivision.choices.0.why": "Dans plusieurs îles du Pacifique, une grande partie des terres est en indivision : elles appartiennent ensemble à de nombreux héritiers. Une loi peut permettre un partage chez le notaire à la majorité des deux tiers, mais certains y voient une atteinte au lien entre les familles et leur terre.", "EVENTS.a_indivision.choices.1.why": "Certains territoires insulaires ont créé un tribunal foncier. Décider au cas par cas respecte chaque famille, mais chaque dossier demande de retrouver tous les héritiers et leur généalogie, ce qui prend du temps.", "EVENTS.a_goelette.choices.0.why": "Dans les archipels, quand un cargo tombe en panne, le gouvernement doit parfois envoyer son propre navire pour ravitailler les îles. Réparer coûte moins cher aujourd'hui, mais beaucoup de navires inter-îles sont très anciens.", "EVENTS.a_goelette.choices.1.why": "Certains territoires insulaires accordent de gros crédits d'impôt pour renouveler leurs navires inter-îles. Le gouvernement renonce ainsi à des recettes : c'est moins visible qu'une subvention, mais tout aussi coûteux.", "EVENTS.a_aerien.choices.0.why": "Dans plusieurs archipels du Pacifique, une délégation de service public oblige une compagnie à desservir de nombreuses îles, avec une aide financée en partie par une taxe sur chaque billet. Quand une compagnie concurrente arrive, elle augmente surtout l'offre sur les lignes rentables.", "EVENTS.a_aerien.choices.2.why": "Après le COVID, des compagnies aériennes régionales ont expliqué ne plus pouvoir desservir seules les lignes non rentables. Quand un concurrent prend les meilleures lignes, la compagnie historique n'a plus de profits pour financer les autres.", "EVENTS.a_plastique.choices.0.why": "Plusieurs îles du Pacifique avancent par étapes : d'abord les sacs, puis la vaisselle jetable, puis les barquettes, et parfois les petites bouteilles. Laisser quelques années aux entreprises rend l'interdiction plus facile à accepter.", "EVENTS.a_plastique.choices.1.why": "Sur un atoll, il n'y a pas de place pour une décharge, et beaucoup d'îles n'ont pas de filière locale de recyclage du plastique. Rapporter les déchets est efficace mais cher, et ne réduit pas la quantité de plastique.", "EVENTS.a_eau.choices.0.why": "Sur les atolls, l'eau de pluie est souvent la source la plus sûre. Les citernes coûtent peu à faire fonctionner, mais se vident quand la sécheresse dure.", "EVENTS.a_eau.choices.1.why": "Dessaler l'eau de mer donne de l'eau même sans pluie, mais demande beaucoup d'énergie, souvent produite au diesel dans les îles. Dans beaucoup d'îles, le prix payé pour l'eau ne couvre déjà pas le coût de l'assainissement.", "EVENTS.a_eau.choices.2.why": "Sur certaines îles touristiques du Pacifique, le service de l'eau est en partie financé grâce au tourisme. Faire payer les plus gros consommateurs soulage les familles, mais les hôteliers peuvent répercuter la hausse sur leurs prix.", "EVENTS.a_locations.choices.0.why": "Dans plusieurs îles touristiques du Pacifique, les résidences secondaires, dont les locations touristiques, ont fortement augmenté ces dernières années. Certains gouvernements ont choisi une taxe légère plutôt que des limites ; une limite agit plus vite sur le logement, mais fait perdre des revenus aux petits propriétaires.", "EVENTS.a_locations.choices.1.why": "Certains territoires insulaires ont choisi d'augmenter légèrement la taxe sur les meublés de tourisme. Une taxe rapporte de l'argent public, mais si elle est faible, elle change peu le choix des propriétaires.", "EVENTS.a_locations.choices.2.why": "Les locations touristiques apportent des revenus aux petits propriétaires et aident à accueillir plus de visiteurs (beaucoup d'îles veulent attirer davantage de touristes). Mais moins de logements à l'année peut faire monter les loyers.", "EVENTS.a_salaireMin.choices.0.why": "Dans beaucoup de territoires, le salaire minimum est fixé par le gouvernement et revu régulièrement. Une forte hausse améliore la vie des salariés modestes, mais les petites entreprises peuvent embaucher moins, surtout des jeunes sans expérience.", "EVENTS.a_salaireMin.choices.2.why": "Baisser les cotisations aide les patrons à embaucher, mais prive les caisses sociales d'argent qu'il faut compenser avec le budget. Dans plusieurs territoires insulaires, les cotisations retraite ont déjà beaucoup augmenté ces dernières années, car les retraités sont de plus en plus nombreux.", "EVENTS.a_retraites.choices.0.why": "Plusieurs territoires ont déjà repoussé l'âge légal de 60 à 62 ans, ce qui ne rétablit souvent l'équilibre que pour une dizaine d'années. Quand la population vieillit, le nombre d'actifs pour chaque retraité baisse fortement.", "EVENTS.a_retraites.choices.1.why": "Dans beaucoup de territoires, la cotisation retraite a déjà beaucoup augmenté ces dernières années. Monter encore réduit le salaire net et rend l'embauche plus chère.", "EVENTS.a_ice.choices.0.why": "Dans plusieurs îles du Pacifique, des prisons ont été remplies à plus du double de leur capacité, et le restent parfois même après l'ouverture d'un nouveau centre. Construire prend des années et ne suffit pas si les entrées continuent.", "EVENTS.a_ice.choices.1.why": "Dans certaines prisons, une grande partie des détenus attend encore son jugement : moins de détention provisoire libère vite des places. Des plans pour les soins et la prévention existent, mais les familles disent souvent que seul l'hôpital psychiatrique peut accueillir les malades.", "EVENTS.a_ice.choices.2.why": "Dans le Pacifique, les douanes saisissent de plus en plus d'ice, parfois des dizaines de kilos dans un seul conteneur. Mais sur des îles isolées, la drogue se vend très cher : avec de tels profits, les trafiquants s'adaptent.", "EVENTS.a_violences.choices.0.why": "Dans plusieurs territoires du Pacifique, les condamnations pour violences conjugales sont bien plus fréquentes que dans beaucoup d'autres pays. Éloigner l'auteur plutôt que la victime protège les enfants, mais demande des juges et des contrôles.", "EVENTS.a_violences.choices.1.why": "Une part importante des auteurs de violences conjugales récidive. Certains gouvernements créent des groupes d'hommes pour faire évoluer les comportements ; ce travail est lent et ses résultats restent à mesurer.", "EVENTS.a_violences.choices.2.why": "Plusieurs territoires ont ouvert un observatoire des violences faites aux femmes. Mesurer aide à bien agir, mais pendant ce temps les victimes attendent, et elles sont nombreuses chaque année.", "EVENTS.a_evasan.choices.0.why": "Plusieurs pays du Pacifique installent des stations de télémédecine dans les îles éloignées. Une évacuation sanitaire en avion coûte très cher, mais on mesure encore mal combien de vols la télémédecine évite.", "EVENTS.a_evasan.choices.1.why": "Dans beaucoup d'archipels, seules quelques îles habitées ont un hôpital. Un hôpital de plus rapproche les soins, mais coûte cher à faire tourner, et il faut convaincre des médecins de s'installer loin.", "EVENTS.a_evasan.choices.2.why": "Dans les archipels, les évacuations urgentes vers l'hôpital sont nombreuses chaque année et coûtent très cher en transport. Être plus strict fait des économies, mais une erreur de tri peut coûter une vie, et les îles éloignées se sentent moins bien soignées.", "EVENTS.a_aireMarine.choices.0.why": "Plusieurs pays du Pacifique ont classé une grande partie de leur zone économique en aire marine protégée, en laissant les eaux proches des côtes aux petits bateaux. Selon certains dirigeants, les prises n'ont pas baissé ; mais il y a souvent très peu de bateaux pour surveiller ces immenses espaces.", "EVENTS.a_aireMarine.choices.1.why": "Des ONG financent parfois la surveillance des aires marines du Pacifique. Cela soulage le budget, mais le pays dépend alors de financeurs étrangers pour faire respecter ses propres règles.", "EVENTS.a_aireMarine.choices.2.why": "Les pêcheurs gardent leurs zones et le pays évite le coût de la surveillance. Mais dans le monde, les requins et raies de récif ont diminué de 50 à 60 % ; les sanctuaires de requins créés dans le Pacifique en gardent parmi les plus fortes densités.", "EVENTS.a_fuiteCerveaux.choices.0.why": "Dans beaucoup de petites îles, une part importante des jeunes part chaque année étudier ou travailler ailleurs. Une obligation garantit des retours, mais elle peut décourager certains jeunes de demander la bourse.", "EVENTS.a_fuiteCerveaux.choices.1.why": "Beaucoup de jeunes partis étudier à l'étranger finissent par rentrer au pays. Les retours semblent augmenter quand des emplois attendent les diplômés.", "EVENTS.a_chomage.choices.0.why": "Certains territoires insulaires n'ont toujours pas d'assurance chômage. Les cotisations sur les salaires y sont souvent déjà élevées pour la retraite et la santé, ce qui rend une nouvelle cotisation difficile à accepter.", "EVENTS.c_nucleaire.choices.0.why": "Dans le Pacifique, plusieurs puissances ont réalisé des essais nucléaires pendant des décennies. Les lois d'indemnisation ont souvent d'abord rejeté presque tous les dossiers, avec des critères très stricts comme le « risque négligeable » ; quand ces critères sont supprimés, beaucoup plus de victimes sont reconnues, et l'on débat aussi d'indemniser leurs proches.", "EVENTS.c_grandsFonds.choices.2.why": "En juillet 2026, un territoire du Pacifique a protesté contre un projet américain d'exploitation des fonds marins décidé sans le consulter. Renoncer, c'est aussi renoncer à une manne possible, peut-être pour toujours.", "EVENTS.e_littoral.choices.1.why": "Une étude de 2014 (Ferrario et al., Nature Communications) a montré qu'un récif corallien absorbe en moyenne 97 % de l'énergie des vagues. Les plantes indigènes du rivage retiennent le sable. Attention : sur certaines îles, la mangrove n'est pas indigène, elle a été introduite et peut devenir envahissante.", "EVENTS.e_piscine.choices.1.why": "Pour accueillir de grands jeux sportifs régionaux, certains gouvernements renoncent à construire de nouveaux bassins olympiques et rénovent une ancienne piscine. Si elle est un peu plus courte que la norme internationale, les fédérations craignent que les résultats ne soient pas homologués.", "EVENTS.e_partenaire.choices.2.why": "Dans les îles du Pacifique, les grands travaux sont souvent cofinancés : un câble sous-marin, par exemple, peut être payé en partie par l'État et en partie par le gouvernement de l'île. C'est plus lent et il faut respecter les règles du financeur, mais la dette reste maîtrisée.", "EVENTS.g_marae.choices.0.why": "Certains marae du Pacifique sont inscrits au patrimoine mondial de l'UNESCO. Ce sont des lieux où, selon la tradition, le monde des vivants rencontre celui des ancêtres et des dieux. Les visiteurs sont invités à ne pas monter sur les pierres et à respecter le silence.", "EVENTS.g_fip.choices.0.why": "Dans plusieurs territoires, un fonds commun répartit chaque année des ressources du gouvernement de l'île et de l'État entre toutes les communes, selon des critères. Une règle publique limite le favoritisme.", "LETTERS.11.text": "Je voudrais que le lycée propose la langue de l'île en option au bac. Beaucoup d'entre nous la parlent à la maison.", "EASY.events.a_taxeSucre.choices.1.why": "Au Mexique, une petite taxe (environ 10 % du prix) a fait baisser les achats de 7,6 % en deux ans. C'est un vrai effet, mais il est modeste. Dans les îles, on demande souvent que cet argent serve vraiment à la prévention.", "EASY.events.a_taxeSucre.choices.2.why": "Une campagne coûte peu et ne fâche personne. Mais seule, elle change peu les habitudes. Dans beaucoup d'îles, de nombreux jeunes boivent un soda chaque jour.", "EASY.events.a_ecole.choices.0.why": "Dans beaucoup d'îles, il y a de moins en moins d'élèves. Regrouper coûte moins cher. Mais l'école est alors plus loin des familles, surtout dans les petites îles.", "EASY.events.a_ecole.choices.2.why": "Dans certaines îles, des écoles bilingues (en deux langues) enseignent autant en français que dans la langue de l'île. Il y a plus de demandes que de places. Le plus difficile : trouver des enseignants.", "EASY.events.a_indivision.choices.0.why": "Dans beaucoup d'îles du Pacifique, une grande partie des terres est en indivision. Certaines lois permettent un partage si la plupart des héritiers sont d'accord. Mais certains pensent que cela abîme le lien entre la famille et sa terre.", "EASY.events.a_indivision.choices.1.why": "Certains territoires ont ouvert un tribunal foncier (pour les terres). Il respecte chaque famille. Mais il faut retrouver tous les héritiers, et cela prend du temps.", "EASY.events.a_goelette.choices.0.why": "Dans certaines îles, le bateau du gouvernement a déjà dû remplacer un cargo en panne. Réparer coûte moins cher aujourd'hui. Mais beaucoup de bateaux entre les îles sont très vieux.", "EASY.events.a_goelette.choices.1.why": "Certains pays font payer moins d'impôts aux armateurs pour qu'ils achètent des bateaux neufs. Cet argent manque ensuite au pays : c'est aussi une dépense.", "EASY.events.a_aerien.choices.0.why": "Dans certains archipels, les vols vers les petites îles sont payés en partie par une taxe sur chaque billet. Une nouvelle compagnie vole souvent surtout sur les lignes qui rapportent.", "EASY.events.a_aerien.choices.2.why": "Dans plusieurs archipels, la compagnie locale dit ne plus pouvoir payer seule les lignes qui perdent de l'argent. Si une autre compagnie prend les meilleures lignes, il n'y a plus d'argent pour les autres.", "EASY.events.a_plastique.choices.0.why": "Beaucoup d'îles avancent pas à pas : d'abord les sacs, puis la vaisselle jetable, puis les barquettes. Laisser du temps aux entreprises aide à faire accepter la règle.", "EASY.events.a_eau.choices.0.why": "Sur les atolls, l'eau de pluie est souvent la plus sûre. Une citerne coûte peu à utiliser. Mais elle se vide si la sécheresse dure.", "EASY.events.a_eau.choices.2.why": "Sur certaines îles touristiques, le tourisme aide à payer le service de l'eau. Faire payer ceux qui consomment le plus aide les familles. Mais les hôtels peuvent augmenter leurs prix.", "EASY.events.a_locations.choices.0.why": "Dans beaucoup d'îles touristiques, les logements loués aux touristes ont beaucoup augmenté. Une limite libère vite des logements. Mais les petits propriétaires gagnent moins.", "EASY.events.a_locations.choices.1.why": "Certaines îles ont un peu augmenté cette taxe. Une taxe rapporte de l'argent au pays. Mais si elle est petite, les propriétaires ne changent pas grand-chose.", "EASY.events.a_salaireMin.choices.0.why": "Dans beaucoup de pays, le gouvernement fixe un salaire minimum. Une grosse hausse aide les salariés modestes. Mais les petites entreprises peuvent embaucher moins, surtout des jeunes.", "EASY.events.a_retraites.choices.0.why": "Beaucoup de pays sont déjà passés de 60 à 62 ans. Souvent, cela ne règle le problème que pour une dizaine d'années. Il y a de moins en moins de travailleurs pour chaque retraité.", "EASY.events.a_retraites.choices.1.why": "Dans beaucoup de pays, la part du salaire payée pour la retraite a déjà beaucoup augmenté. Monter encore, c'est moins d'argent pour les salariés et des embauches plus chères.", "EASY.events.a_ice.choices.0.why": "Dans plusieurs îles, les prisons ont déjà été beaucoup trop pleines, même après l'ouverture d'une autre prison. Construire prend des années. Et cela ne suffit pas si de nouvelles personnes arrivent sans cesse.", "EASY.events.a_ice.choices.1.why": "Dans certaines prisons, beaucoup de détenus attendent encore leur procès. En garder moins libère vite des places. Certains pays lancent aussi des plans pour soigner et prévenir.", "EASY.events.a_violences.choices.0.why": "Dans plusieurs îles du Pacifique, la justice condamne ces violences bien plus souvent qu'ailleurs. Faire partir l'auteur protège les enfants. Mais il faut des juges et des contrôles.", "EASY.events.a_violences.choices.1.why": "Beaucoup d'auteurs recommencent. Certains gouvernements créent des groupes d'hommes pour faire changer les comportements. C'est un travail lent.", "EASY.events.a_violences.choices.2.why": "Plusieurs pays ont ouvert un tel observatoire. Bien connaître le problème aide à bien agir. Mais pendant ce temps, de nombreuses victimes attendent de l'aide.", "EASY.events.a_evasan.choices.0.why": "Plusieurs pays du Pacifique installent des postes de télémédecine dans les îles lointaines. Un transport de malade en avion coûte très cher. Mais on ne sait pas encore combien de vols on évite.", "EASY.events.a_evasan.choices.1.why": "Dans beaucoup d'archipels, seules quelques îles ont un hôpital. Un hôpital de plus rapproche les soins. Mais il coûte cher, et il faut des médecins prêts à vivre loin.", "EASY.events.a_evasan.choices.2.why": "Dans les archipels, il y a beaucoup de transports urgents de malades chaque année. Être plus strict fait des économies. Mais une erreur peut coûter une vie.", "EASY.events.a_aireMarine.choices.0.why": "Plusieurs pays du Pacifique ont protégé une grande partie de leur océan, en laissant les côtes aux petits bateaux. Selon certains dirigeants, les pêcheurs n'ont pas pêché moins. Mais il y a très peu de bateaux pour surveiller ces immenses espaces.", "EASY.events.a_aireMarine.choices.1.why": "Des associations donnent parfois de l'argent pour aider à surveiller l'océan. Cela aide le budget. Mais le pays dépend alors d'argent étranger pour faire respecter ses propres règles.", "EASY.events.a_fuiteCerveaux.choices.0.why": "Dans beaucoup de petites îles, de nombreux jeunes partent chaque année. L'obligation fait revenir des jeunes. Mais certains n'oseront plus demander la bourse.", "EASY.events.a_fuiteCerveaux.choices.1.why": "Beaucoup de jeunes partis étudier finissent par rentrer au pays. Ils reviennent plus quand un emploi les attend.", "EASY.events.a_chomage.choices.0.why": "Certaines îles n'ont toujours pas d'assurance chômage (de l'argent versé quand on perd son travail). Mais on prend souvent déjà beaucoup sur les salaires pour la retraite et la santé.", "EASY.events.c_nucleaire.choices.0.why": "Dans le Pacifique, plusieurs pays puissants ont fait des essais nucléaires pendant des années. Au début, très peu de victimes ont été reconnues, car les règles étaient très strictes. Quand on a changé les règles, beaucoup plus de victimes ont été aidées. Aujourd'hui, on veut aussi aider leurs proches.", "EASY.events.c_grandsFonds.choices.2.why": "En juillet 2026, un territoire du Pacifique a protesté contre un projet américain d'exploitation des fonds marins, décidé sans lui demander son avis. Mais renoncer, c'est aussi renoncer à beaucoup d'argent, peut-être pour toujours.", "EASY.events.e_piscine.choices.1.why": "Pour de grands jeux sportifs, on rénove parfois une vieille piscine au lieu d'en construire une neuve. Si elle est trop courte, les records risquent de ne pas compter.", "EASY.events.e_partenaire.choices.2.why": "Dans les îles, l'État et le gouvernement de l'île paient souvent ensemble les grands travaux. C'est plus lent, mais on s'endette moins.", "EASY.events.g_marae.choices.0.why": "Certains marae du Pacifique sont protégés par l'UNESCO. On ne monte pas sur les pierres et on reste calme.", "EASY.events.g_fip.choices.0.why": "Dans beaucoup de territoires, un fonds partage chaque année de l'argent entre les communes, avec des règles.", "EASY.cards.vieChere.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.vieChere.hist": "En Polynésie française, en 2022, l'Autorité polynésienne de la concurrence a critiqué le transport de carburant. Trois entreprises se partageaient le marché et gardaient un prix minimum sans base légale. En 2025, des experts ont proposé d'interdire les droits exclusifs (réservés à une seule entreprise) d'importer.", "EASY.cards.longTerme.hist": "En 2012, Tokelau a remplacé ses moteurs au diesel par des panneaux solaires et des batteries. À Bora Bora, en Polynésie française, un hôtel se climatise avec l'eau de mer : il utilise 90 % d'électricité en moins, et l'installation a été remboursée en 7 ans.", "EASY.cards.communs.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.parite.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.parite.hist": "Aux élections en Polynésie française, les listes doivent alterner un homme et une femme. Dans le monde, environ 27,5 % des députés sont des femmes (2026).", "EASY.cards.conscience.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.conscience.hist": "La loi française de 1905 qui sépare les Églises et l'État ne s'applique pas en Polynésie française. Les religions y suivent des textes de 1939, les décrets Mandel. La liberté de croire y est quand même garantie.", "EASY.cards.inegalites.how.1": "À Tahiti et Moorea, en Polynésie française (2009), l'indice de Gini était de 0,40, contre 0,29 en France métropolitaine. Plus ce chiffre est haut, plus la société est inégale.", "EASY.cards.a_taxeSante.how.1": "En Polynésie française, la moitié des adultes étaient obèses en 2021. Et 12,2 % des habitants ont du diabète (trop de sucre dans le sang).", "EASY.cards.a_bilinguisme.def": "Une école bilingue enseigne en deux langues, par exemple autant en français qu'en tahitien en Polynésie française. Le but : que les enfants parlent bien les deux.", "EASY.cards.a_bilinguisme.how.0": "En Polynésie française, certaines écoles donnent environ 13 h 30 de français et 13 h 30 de reo mā'ohi par semaine.", "EASY.cards.a_bilinguisme.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.a_bilinguisme.hist": "En Polynésie française, les premiers essais ont commencé en 2008. La première année a été difficile, car il manquait d'enseignants. Aux Marquises, beaucoup de familles parlent bien le français et le marquisien. Au collège, un seul à Moorea donne autant d'heures dans les deux langues.", "EASY.cards.a_bilinguisme.quiz.0": "Dans les écoles bilingues de Polynésie française, combien d'heures de tahitien par semaine ?", "EASY.cards.a_indivision.how.1": "En Polynésie française, plus de la moitié des terres (57,6 %) sont en indivision.", "EASY.cards.a_indivision.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.a_indivision.hist": "Un tribunal pour les terres existe à Tahiti, en Polynésie française, depuis 2017. Une loi de 2019 permet, pendant 10 ans, de partager une terre chez le notaire si deux tiers des héritiers sont d'accord. On peut aussi partager par branche de la famille devant le juge.", "EASY.cards.a_indivision.quiz.0": "Quelle part des terres de Polynésie française est en indivision ?", "EASY.cards.a_continuite.how.1": "En Polynésie française, depuis 2021, les vols vers 34 îles sont aidés grâce à une taxe sur chaque billet d'avion.", "EASY.cards.a_continuite.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.a_continuite.hist": "En 2023, la compagnie Air Moana est arrivée à côté d'Air Tahiti. Elle vole surtout sur les lignes qui rapportent. Les petites îles restent desservies grâce à l'aide du gouvernement de la Polynésie française. En 2023, environ 2 millions de passagers ont voyagé en bateau entre les îles.", "EASY.cards.a_protectionSociale.how.1": "En Polynésie française, il y avait 5,6 travailleurs par retraité en 1995, et moins de 2 en 2017. L'âge de la retraite est passé de 60 à 62 ans.", "EASY.cards.a_protectionSociale.how.2": "La Polynésie française n'a pas d'assurance chômage : quand on perd son travail, c'est la famille qui aide. En créer une protégerait mieux, mais coûterait plus sur les salaires.", "EASY.cards.a_protectionSociale.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.a_prison.how.1": "En 2022, à la prison de Nuutania (Tahiti, Polynésie française), environ deux détenus sur trois attendaient leur procès. Les affaires de drogue étaient les plus nombreuses.", "EASY.cards.a_prison.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.a_violences.how.1": "En Polynésie française, environ 1 500 victimes sont comptées chaque année par la police et la gendarmerie.", "EASY.cards.a_violences.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.a_evasan.how.0": "En Polynésie française, il y a environ 1 200 transports urgents de malades par an. Cela coûte environ 12 millions d'euros.", "EASY.cards.a_evasan.how.1": "En Polynésie française, il y a 76 îles habitées, mais seulement 4 ont un hôpital : Tahiti, Moorea, Raiatea et Nuku Hiva.", "EASY.cards.a_evasan.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.a_airesMarines.how.2": "Les récifs de corail de Polynésie française font vivre plus de 21 000 emplois.", "EASY.cards.a_airesMarines.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.a_airesMarines.hist": "En 2025, la Polynésie française a protégé tout son océan, environ 4,8 millions de km². En 2026, elle a encore agrandi la zone. Mais il n'y a qu'un bateau de surveillance. Des associations ont réuni 15 millions de dollars pour aider à surveiller.", "EASY.cards.a_fuiteCerveaux.how.1": "En Polynésie française, environ 800 jeunes de 18 à 25 ans partent chaque année. Mais entre 2017 et 2022, 2 100 Polynésiens sont aussi rentrés.", "EASY.cards.a_fuiteCerveaux.hist": "Aux Tonga, l'argent envoyé par ceux qui sont partis représente plus d'un tiers de la richesse du pays. Mais il manque des travailleurs sur place. En Polynésie française, à la rentrée 2026, il manquait surtout des professeurs d'anglais et de maths.", "EASY.cards.a_fuiteCerveaux.quiz.0": "Combien de jeunes de 18 à 25 ans quittent la Polynésie française chaque année ?", "EASY.cards.c_essais.histTitle": "Des exemples vrais : la Polynésie française et les îles Marshall", "EASY.cards.c_essais.hist": "La France a fait 193 essais en Polynésie française de 1966 à 1996, dont 46 dans l'air jusqu'en 1974. Avec la loi Morin (2010), seuls 3 % des dossiers ont été acceptés jusqu'en 2017, puis 44,2 %. Environ 108 millions d'euros ont été versés jusqu'en 2025. En janvier 2026, l'Assemblée nationale a voté à l'unanimité un texte pour mieux reconnaître les victimes. Aux îles Marshall, après 67 essais américains (1946-1958), un accord a donné 150 millions de dollars en 1986, puis 700 millions en 2023.", "EASY.cards.e_financement.hist": "Aux Tuamotu, en Polynésie française, l'État et le gouvernement local ont payé moitié-moitié 17 abris anticycloniques. Aux Tonga, un gros prêt pèse encore sur le budget, quinze ans plus tard.", "EASY.cards.f_prime.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.f_prime.quiz.0": "Combien de sièges de bonus en Polynésie française ?", "EASY.cards.f_defiance.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.f_controles.how.0": "Le représentant de l'État vérifie que les décisions sont légales (en Polynésie française : le haut-commissaire).", "EASY.cards.f_controles.how.1": "La Cour suprême peut annuler une loi de l'île illégale (en Polynésie française : le Conseil d'État).", "EASY.cards.f_controles.how.2": "Le Conseil économique et social donne son avis sur les lois (en Polynésie française : le CESEC).", "EASY.cards.f_controles.quiz.0": "Que vérifie le représentant de l'État ?", "EASY.cards.g_marae.histTitle": "Un exemple vrai : la Polynésie française", "EASY.cards.g_marae.hist": "Taputapuātea, à Raiatea, en Polynésie française, est protégé par l'UNESCO depuis 2017.", "EASY.letters.11.text": "Je voudrais pouvoir choisir la langue de l'île en option au bac. Beaucoup d'entre nous la parlent à la maison.", "ASSETS.eau.tiers.1.why": "Dans plusieurs îles du Pacifique, l'accès à l'eau potable a fortement progressé en une douzaine d'années grâce aux réseaux, mais les îles éloignées restent souvent en retard.", "ASSETS.energie.tiers.1.why": "Dans plusieurs îles du Pacifique, de grandes fermes solaires entrent en service. Moins de carburant importé, mais il faut un réseau capable d'absorber cette énergie.", "ASSETS.sante.tiers.1.why": "Quelques stations de télémédecine coûtent bien moins cher que les évacuations sanitaires, qui se comptent par centaines chaque année dans les archipels dispersés.", "ASSETS.abri.tiers.1.why": "Sur certains atolls bas, des abris de survie coûteux ont été construits, payés en partie par l'État. Hors cyclone, ils servent d'école ou de mairie.", "ASSETS.dechets.tiers.1.why": "Sur beaucoup d'îles, une seule décharge reçoit chaque année des dizaines de milliers de tonnes de déchets, et seule une petite partie est triée.", "ASSETS.logement.tiers.1.why": "Estimation : sur une île où presque tous les matériaux sont importés, un logement social coûte cher, soit 10 à 17 U pour 50 logements. Moins de familles entassées, c'est moins de maladies et de tensions.", "ASSETS.aerodrome.tiers.1.why": "Avec un balisage lumineux, les évacuations sanitaires peuvent se faire de nuit. Dans les archipels dispersés, elles se comptent par centaines chaque année.", "SITS.eau.fix.why": "Dans plusieurs îles du Pacifique, l'accès à l'eau potable a fortement progressé en une douzaine d'années ; sur certains atolls isolés, la plupart des foyers n'ont pourtant toujours pas l'eau courante.", "SITS.delestage.fix.why": "Sur certaines îles, une grande batterie permet d'économiser des millions de dollars de diesel par an : la stabilité du réseau compte autant que la production.", "SITS.hopital.fix.why": "Dans les îles dispersées, les évacuations sanitaires coûtent très cher chaque année : un hôpital en bon état et la télémédecine les réduisent.", "SITS.transfuges.fix.why": "Dans certains territoires du Pacifique, les motions de défiance se sont enchaînées et les gouvernements ont changé presque chaque année. Une majorité large et un programme clair stabilisent un gouvernement.", "PORTFOLIOS.finances.requests.0.why": "Les salaires et le fonctionnement absorbent l'essentiel d'un budget public : sur beaucoup d'îles, il reste peu d'argent pour investir.", "PORTFOLIOS.sante.requests.0.why": "Dans plusieurs îles du Pacifique, beaucoup d'adultes sont obèses, et les maladies chroniques coûtent très cher chaque année à la protection sociale.", "PORTFOLIOS.education.requests.0.why": "Dans plusieurs îles du Pacifique, des écoles bilingues enseignent environ la moitié du temps dans la langue locale : la langue est transmise sans freiner le français.", "PORTFOLIOS.education.requests.1.why": "Pour accueillir les Jeux du Pacifique, une île hôte peut préférer rénover une piscine plutôt que d'en construire une neuve : moins cher, mais parfois trop courte pour les normes internationales.", "PORTFOLIOS.environnement.requests.0.why": "Plusieurs territoires du Pacifique interdisent progressivement les plastiques à usage unique. Les commerçants doivent s'adapter.", "PORTFOLIOS.environnement.requests.1.why": "Dans le Pacifique, certains territoires ont classé toute leur zone économique en aire marine protégée. Des pêcheurs et des élus d'îles éloignées ont protesté.", "PORTFOLIOS.logement.requests.0.why": "Un logement social coûte cher sur une île où presque tous les matériaux sont importés : 50 logements représentent 10 à 17 U.", "PORTFOLIOS.logement.requests.1.why": "Dans plusieurs îles du Pacifique, une grande partie des terres est en indivision : des terres partagées entre des dizaines d'héritiers, impossibles à bâtir sans accord de tous.", "ASSETS.quai.tiers.1.why": "Dans les îles, un port de plaisance ou une marina coûte très cher : on les construit souvent pour un grand événement, comme une compétition sportive internationale.", "ASSETS.numerique.tiers.2.why": "Un câble sous-marin entre les îles coûte très cher et met des mois à être posé. Il est souvent payé à plusieurs : l'État, le gouvernement de l'île et parfois des banques de développement."};
+const LEX_LOCAL_ONLY = ["Assemblée de la Polynésie française", "CESEC", "Collectivité d'outre-mer", "Haut-commissaire", "Loi du pays", "Tarahoi"];
+const LEX_GENERAL_ONLY = [
+  { t: "Loi de l'île", th: "Institutions", d: "Texte voté par l'Assemblée de l'île dans les domaines où l'île décide elle-même (impôts, travail, santé…). Elle doit respecter la Constitution de l'État." },
+  { t: "Conseil économique et social", th: "Institutions", d: "Assemblée de représentants des entreprises, des salariés et des associations. Elle donne des avis sur les projets de lois, mais le gouvernement n'est pas obligé de les suivre." },
+  { t: "Représentant de l'État", th: "Institutions", d: "Personne nommée par l'État dans une région ou une île autonome. Elle vérifie que les décisions locales respectent la loi et peut les faire annuler par un juge." },
+  { t: "Cour suprême", th: "Institutions", d: "Le plus haut tribunal. Il peut annuler une loi ou une décision contraire à la Constitution ou aux droits fondamentaux." },
+];
+const LEX_GENERAL_DEF = {
+  "Motion de défiance": "Texte voté par l'Assemblée pour renverser le gouvernement. Dans certains systèmes, elle doit proposer le nom du nouveau président : on dit qu'elle est « constructive ».",
+  "Arrêté": "Décision d'une autorité (ministre, maire, président de l'île, représentant de l'État) pour régler une question précise. Ex. : un arrêté municipal qui interdit la baignade.",
+  "Tavana": "Mot polynésien (reo mā'ohi) qui désigne le maire d'une commune.",
+  "Fenua": "Mot polynésien (reo mā'ohi) : la terre, le pays, l'île à laquelle on appartient.",
+  "Nūnaʻa": "Mot polynésien (reo mā'ohi) : le peuple, la population.",
+};
+const CTX_ORIG = {}, LEX_STASH = [], LEX_ORIG = {};
+let ctxApplied = null;
+function ctxRoot(name) { const R = { EVENTS: () => EVENTS, CARDS: () => CARDS, EASY: () => EASY, LETTERS: () => LETTERS, ASSETS: () => ASSETS, SITS: () => SITS, PORTFOLIOS: () => PORTFOLIOS, RUMEURS: () => RUMEURS }; try { return R[name] ? R[name]() : null; } catch (e) { return null; } }
+function ctxSlot(path) {
+  const parts = path.split("."); let o = ctxRoot(parts[0]);
+  for (let i = 1; i < parts.length - 1 && o; i++) o = o[parts[i]];
+  const k = parts[parts.length - 1];
+  return o && typeof o[k] === "string" ? [o, k] : null;
+}
+function applyContext() {
+  const local = !!PREFS.localCtx; if (ctxApplied === local) return; ctxApplied = local;
+  for (const p in GENERAL_TEXT) { const s = ctxSlot(p); if (!s) continue; if (!(p in CTX_ORIG)) CTX_ORIG[p] = s[0][s[1]]; s[0][s[1]] = local ? CTX_ORIG[p] : GENERAL_TEXT[p]; }
+  /* lexicon: local institutions ↔ generic ones; the « En Polynésie » notes only in local context */
+  LEX.forEach(x => { if (x.pf != null && !("pf" in (LEX_ORIG[x.t] || {}))) (LEX_ORIG[x.t] = LEX_ORIG[x.t] || {}).pf = x.pf; if (LEX_GENERAL_DEF[x.t] && !("d" in (LEX_ORIG[x.t] || {}))) (LEX_ORIG[x.t] = LEX_ORIG[x.t] || {}).d = x.d; });
+  LEX.forEach(x => { const o = LEX_ORIG[x.t]; if (!o) return; if ("pf" in o) x.pf = local ? o.pf : ""; if ("d" in o) x.d = local ? o.d : LEX_GENERAL_DEF[x.t]; });
+  const outT = local ? LEX_GENERAL_ONLY.map(x => x.t) : LEX_LOCAL_ONLY;
+  for (let i = LEX.length - 1; i >= 0; i--) if (outT.includes(LEX[i].t)) LEX_STASH.push(LEX.splice(i, 1)[0]);
+  const back = local ? LEX_LOCAL_ONLY : LEX_GENERAL_ONLY.map(x => x.t);
+  for (let i = LEX_STASH.length - 1; i >= 0; i--) if (back.includes(LEX_STASH[i].t)) LEX.push(LEX_STASH.splice(i, 1)[0]);
+  if (!local) LEX_GENERAL_ONLY.forEach(x => { if (!LEX.some(y => y.t === x.t)) LEX.push(x); });
+  try { LEX_SORTED = null; } catch (e) { }
+  try { lastNewsKey = ""; } catch (e) { }
+}
+try { applyContext(); } catch (e) { }
+(function hookContext() {
+  const base = window.applyPrefs;
+  window.applyPrefs = function () { const r = base.apply(this, arguments); const was = ctxApplied; try { applyContext(); } catch (e) { } if (was !== null && was !== ctxApplied && S && S.screen && S.screen !== "intro") { try { render(); } catch (e) { } } return r; };
+})();
+
 
 /* ================= LIVING ISLAND ================= */
 const SCENE_TEXT = {
@@ -7294,7 +7499,7 @@ const Scene = (() => {
     const now = performance.now(), keys = Object.keys(S.flags).filter(k => SCENE_TEXT[k]);
     let cap = "";
     if (known === null) known = new Set(keys);
-    else for (const k of keys) if (!known.has(k)) { known.add(k); born[k] = now; cap = SCENE_TEXT[k]; }
+    else for (const k of keys) if (!known.has(k)) { known.add(k); born[k] = born[k] > now ? born[k] : now; cap = SCENE_TEXT[k]; }
     if (keys.length < known.size) known = new Set(keys);
     if (S.assets) for (const id in S.assets) { const tier = S.assets[id].tier, key = "A_" + id; if (lastTier[id] !== undefined && tier > lastTier[id]) { born[key] = now; cap = "inauguration : " + ASSETS[id].tiers[tier - 1].n + "."; } lastTier[id] = tier; }
     const m = mode();
@@ -7752,7 +7957,9 @@ const Scene = (() => {
     if (night) R(0, 0, W, H, `rgba(5,15,30,${0.18 * night})`);
     if (lit && night > 0.35) [[a0 + 19, yb - 6], [tx0 + 8, yb - 6], [137, yb - 6]].forEach(([x, y]) => C(x, y, 12, `rgba(246,196,83,${0.12 * night})`));
     if (g.d < 30) R(0, 0, W, H, "rgba(40,20,30,0.16)");
+    drawMarks(now, t, water);
     drawAssetMarks(now, t, yb, water, ax, ay);
+    drawHalo(now);
     drawCrisisMarks(t, yb, water);
     /* new-year title: a short, skippable beat (not in reduced motion) */
     const yb0 = now - yearBannerAt;
@@ -7763,7 +7970,8 @@ const Scene = (() => {
       ctx.fillStyle = "#F4F1E8"; ctx.font = "600 10px Figtree, sans-serif"; ctx.fillText(level().name + (S.year === MANDATE + 1 ? " · second mandat" : ""), W / 2, H / 2 + 17); ctx.restore(); ctx.textAlign = "left";
     }
     if (typeof PREFS !== "undefined" && PREFS.paint && PREFS.paint !== "plat") paint(k, PREFS.paint, now);
-    busy = (S.screen === "year" && now - yearBannerAt < 2000) || storm || !!m || confetti.length > 0 || trauma > 0.01 || now < rainbowUntil || Object.values(born).some(b => now - b < 3500);
+    drawBrushFx(now, k);
+    busy = !!halo || !!brushFx || Object.values(markBorn).some(b => now - b < 2000) || (S.screen === "year" && now - yearBannerAt < 2000) || storm || !!m || confetti.length > 0 || trauma > 0.01 || now < rainbowUntil || Object.values(born).some(b => now - b < 3500);
   }
   /* one floating badge per active crisis, near what caused it */
   function drawCrisisMarks(t, yb, water) {
@@ -7784,6 +7992,197 @@ const Scene = (() => {
   /* where each public asset sits on the drawing */
   function assetPos(id, yb, water, ax, ay) {
     return { route: [190, yb - 6], quai: [370, water + 8], eau: [250, yb - 40], energie: [30, yb - 30], ecole: [158, yb - 20], sante: [283, yb - 24], abri: [ax - 25, ay - 18], dechets: [320, yb - 32], littoral: [126, water - 4], numerique: [318, yb - 44], logement: [108, yb - 32], aerodrome: [ax + 8, ay - 6] }[id] || [200, yb - 30];
+  }
+  /* ---- brush touches: little painted scenes of community life left by each decision (S.marks), and the brush that paints them ---- */
+  const markBorn = {}; let brushFx = null;
+  const MARK_POS = {           // [x, ground]: beach = on the sand, water = lagoon, motu = on the islet
+    chorale: [58, "beach"], veillee: [58, "beach"], linge: [88, "beach"], valises: [88, "beach"], jeunes: [116, "beach"], graffiti: [116, "beach"],
+    fleurs: [146, "beach"], nappe: [120, "water", 26], chantier: [170, "beach"], urne: [198, "beach"], police: [198, "beach"],
+    marche: [230, "beach"], volet: [230, "beach"], fete: [264, "beach"], banderole: [264, "beach"], pirogues: [282, "water", 30], filets: [302, "beach"],
+    conteneurs: [338, "beach"], vendre: [338, "beach"], goelette: [362, "water", 50], sos: [404, "motu"],
+  };
+  const FLAG_POS = { solaire: [30, 102], rahui: [146, 170], surpeche: [250, 165], quotas: [55, 160], lagonVide: [200, 170], barriere: [317, 128], grandHotel: [317, 108],
+    petitHotel: [318, 156], port: [356, 138], terrain: [111, 122], autoritaire: [196, 120], presse: [136, 122], presseRouverte: [136, 122], cite: [404, 178], zoneTech: [404, 178],
+    citeReprise: [404, 178], autonomie: [426, 176], secession: [426, 176], digue: [404, 190], ecole: [147, 116], hopital: [283, 112], routes: [190, 126], submerge: [404, 190], cable: [376, 172], blanchi: [150, 182] };
+  function markAnchor(kind, water) {
+    const [x, where, dy] = MARK_POS[kind] || [200, "beach"];
+    return where === "water" ? [x, water + (dy || 20)] : where === "motu" ? [x, REEF - 6] : [x, water - 0.8];
+  }
+  const MARK_DRAW = {
+    fete(x, y, t) {
+      L([[x - 16, y], [x - 16, y - 17]], "#6B4128", 1); L([[x + 16, y], [x + 16, y - 17]], "#6B4128", 1);
+      ctx.strokeStyle = "#5A3A22"; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(x - 16, y - 16); ctx.quadraticCurveTo(x, y - 11, x + 16, y - 16); ctx.stroke();
+      const cols = ["#E8573D", "#F6C453", "#0B8F8A", "#F27BA0", "#2D5E8C"];
+      for (let i = 0; i < 7; i++) { const u = (i + 0.5) / 7, px = x - 16 + u * 32, py = y - 16 + 5 * 4 * u * (1 - u) * 0.5; P([[px - 1.8, py], [px + 1.8, py], [px, py + 3.6 + Math.sin(t * 3 + i) * 0.4]], cols[i % 5]); }
+      [-9, -1, 7].forEach((dx, i) => person(x + dx, y, ["#E8573D", "#F2C14E", "#F27BA0"][i], Math.abs(Math.sin(t * 4 + i * 1.3)) * 1.6, null, 0.95));
+    },
+    banderole(x, y, t) {
+      [-10, -2, 6, 12].forEach((dx, i) => person(x + dx, y, ["#3A3A3A", "#B4472C", "#2D5E8C", "#5A4632"][i], Math.abs(Math.sin(t * 2.5 + i)) * 0.8, null, 0.95));
+      L([[x - 15, y - 3], [x - 15, y - 22]], "#5A3A22", 1); L([[x + 15, y - 3], [x + 15, y - 22]], "#5A3A22", 1);
+      const sw = Math.sin(t * 1.6) * 0.8; P([[x - 15, y - 22], [x + 15, y - 22 + sw], [x + 15, y - 15 + sw], [x - 15, y - 15]], "#7A2626");
+      ctx.fillStyle = "#F4F1E8"; ctx.font = "bold 5px sans-serif"; ctx.textAlign = "center"; ctx.fillText("ÉCOUTEZ-NOUS", x, y - 16.8); ctx.textAlign = "left";
+    },
+    marche(x, y, t) {
+      person(x - 3, y - 2, "#0B8F8A", 0, null, 0.9);
+      R(x - 11, y - 7, 22, 2, "#8A5A2E"); L([[x - 10, y - 5], [x - 10, y]], "#6B4128", 1); L([[x + 10, y - 5], [x + 10, y]], "#6B4128", 1);
+      L([[x - 11, y - 7], [x - 11, y - 16]], "#6B4128", 0.8); L([[x + 11, y - 7], [x + 11, y - 16]], "#6B4128", 0.8);
+      for (let i = 0; i < 5; i++) P([[x - 12 + i * 4.8, y - 17], [x - 7.2 + i * 4.8, y - 17], [x - 7.2 + i * 4.8, y - 13], [x - 12 + i * 4.8, y - 14]], i % 2 ? "#F4F1E8" : "#E8573D");
+      [["#F08A2C", -7], ["#F6C453", -3.5], ["#7BB661", 0], ["#E8573D", 3.5], ["#F6C453", 7]].forEach(([c, dx]) => C(x + dx, y - 8.4, 1.6, c));
+      person(x + 15, y, "#F27BA0", Math.abs(Math.sin(t * 1.5)) * 0.5, null, 0.9);
+    },
+    volet(x, y) {
+      R(x - 11, y - 15, 22, 15, "#8E8B86"); for (let k = 0; k < 6; k++) R(x - 10, y - 13 + k * 2.2, 20, 0.7, "#6F6C68");
+      R(x - 12, y - 17, 24, 2.5, "#5A5A5A"); R(x - 6, y - 10, 12, 5, "#B03A2E"); ctx.fillStyle = "#FFFFFF"; ctx.font = "bold 3.6px sans-serif"; ctx.textAlign = "center"; ctx.fillText("FERMÉ", x, y - 6.6); ctx.textAlign = "left";
+    },
+    fleurs(x, y, t) {
+      L([[x + 6, y - 2], [x + 6, y - 14]], "#6B4128", 1.4); C(x + 6, y - 16, 6, "#3E8E4E"); C(x + 3, y - 14, 4, "#4FA35A");
+      [[-9, 0], [-3, 1], [3, 0], [12, 1]].forEach(([dx, dy], i) => { C(x + dx, y - 2 + dy, 3.6, i % 2 ? "#3E8E4E" : "#4FA35A");
+        [[-1.4, -1.6], [1.5, -0.6], [0, 1]].forEach(([a, b], j) => C(x + dx + a, y - 2 + dy + b, 0.9, ["#F4F1E8", "#E8573D", "#F6C453"][(i + j) % 3])); });
+    },
+    nappe(x, y, t) {
+      ctx.save(); ctx.globalAlpha *= 0.85; E(x, y, 24, 4.6, "#2E2A26"); E(x + 8, y + 1, 12, 2.6, "#3A332C"); ctx.globalAlpha *= 0.6;
+      E(x - 6, y - 1, 10, 1.4, "rgba(150,110,210,0.6)"); E(x + 6, y + 0.5, 7, 1, "rgba(90,190,170,0.6)"); ctx.restore();
+      [[-14, 0], [-4, 2], [12, -1]].forEach(([dx, dy], i) => { const b = Math.sin(t * 2 + i) * 0.5; R(x + dx, y + dy + b - 1, 3, 1.4, ["#E8E4DA", "#7FA7B5", "#C9502E"][i]); });
+    },
+    urne(x, y, t) {
+      R(x + 9, y - 9, 9, 9, "#F4F1E8"); R(x + 11, y - 9.6, 5, 1, "#333333"); R(x + 9, y - 5, 9, 1.2, "#2D5E8C");
+      L([[x + 16, y - 9], [x + 16, y - 20]], "#5A3A22", 0.8); P([[x + 16, y - 20], [x + 23, y - 18.5], [x + 16, y - 17]], "#E8B04B");
+      [-14, -8, -2, 4].forEach((dx, i) => person(x + dx, y, ["#2D5E8C", "#F27BA0", "#0B8F8A", "#F2C14E"][i], i === 3 ? Math.abs(Math.sin(t * 2)) * 0.6 : 0, null, 0.95));
+    },
+    police(x, y, t) {
+      for (let k = 0; k < 7; k++) R(x - 14 + k * 4, y - 7, 4, 2.6, k % 2 ? "#F4F1E8" : "#D2423A");
+      L([[x - 12, y - 4.4], [x - 13, y]], "#555555", 0.8); L([[x + 12, y - 4.4], [x + 13, y]], "#555555", 0.8);
+      [-6, 6].forEach(dx => { person(x + dx, y - 1, "#1C2A3E", 0, null, 1); R(x + dx - 2.4, y - 16.6, 4.8, 1.4, "#111A26"); });
+    },
+    pirogues(x, y, t) {
+      [[-12, 0, 0], [10, 4, 1.7]].forEach(([dx, dy, ph]) => { const bx = x + dx + Math.sin(t * 0.6 + ph) * 1.5, by = y + dy + Math.sin(t * 1.4 + ph) * 0.7;
+        P([[bx - 9, by - 2], [bx + 9, by - 2], [bx + 7, by + 0.6], [bx - 7, by + 0.6]], "#7A4A2A"); L([[bx - 2, by - 2], [bx - 2, by - 6], [bx + 2, by - 6], [bx + 2, by - 2]], "#5A3A22", 0.6);
+        E(bx, by - 6.6, 6, 0.9, "#5A3A22"); person(bx + 3, by - 2, "#0B8F8A", 0, null, 0.7); L([[bx + 5, by - 6], [bx + 9, by + 1]], "#C9A26A", 0.7); });
+    },
+    filets(x, y) {
+      P([[x - 12, y], [x + 10, y], [x + 7, y - 6], [x - 9, y - 6]], "#7D7A74"); R(x - 9, y - 6.5, 16, 1, "#5E5B56");
+      ctx.strokeStyle = "rgba(60,60,60,0.75)"; ctx.lineWidth = 0.4; ctx.beginPath();
+      for (let k = 0; k < 6; k++) { ctx.moveTo(x + 11 + k * 1.6, y - 10); ctx.lineTo(x + 13 + k * 1.6, y); ctx.moveTo(x + 11, y - 9 + k * 1.6); ctx.lineTo(x + 21, y - 8 + k * 1.6); } ctx.stroke();
+      L([[x + 11, y - 11], [x + 11, y]], "#6B4128", 0.9); L([[x + 21, y - 11], [x + 21, y]], "#6B4128", 0.9);
+    },
+    jeunes(x, y, t) {
+      const ph = (t * 1.6) % 1, bx = x - 10 + 20 * (ph < 0.5 ? ph * 2 : 2 - ph * 2), by = y - 5 - Math.abs(Math.sin(ph * Math.PI * 2)) * 8;
+      person(x - 11, y, "#E8573D", 0, null, 0.95); person(x + 11, y, "#2D5E8C", 0, null, 0.95); person(x + 2, y + 1, "#F2C14E", Math.abs(Math.sin(t * 5)) * 1.4, null, 0.85);
+      C(bx, by, 1.6, "#FFFFFF"); C(bx - 0.4, by - 0.4, 0.6, "#E8B04B");
+    },
+    graffiti(x, y) {
+      R(x - 14, y - 10, 28, 10, "#8C8A86"); R(x - 14, y - 10.8, 28, 1, "#6F6D69");
+      [["#E8573D", -11], ["#0B8F8A", -3], ["#F6C453", 5]].forEach(([c, dx]) => L([[x + dx, y - 3], [x + dx + 2, y - 8], [x + dx + 4, y - 4], [x + dx + 6, y - 8]], c, 1.1));
+      person(x + 17, y, "#3A3A3A", 0, null, 0.9);
+    },
+    chorale(x, y, t) {
+      [-12, -6, 0, 6, 12].forEach((dx, i) => { person(x + dx, y - (i % 2) * 0.6, "#F4F1E8", Math.max(0, Math.sin(t * 2 + i)) * 0.5, null, 0.95); C(x + dx - 1.5, y - 15.6, 0.7, "#F6C453"); C(x + dx + 1.5, y - 15.6, 0.7, "#E8573D"); });
+    },
+    veillee(x, y, t) {
+      [-8, 0, 8].forEach((dx, i) => person(x + dx, y, "#E9E5DC", 0, null, 0.95));
+      [-12, -4, 4, 12].forEach((dx, i) => { R(x + dx - 0.5, y - 4, 1, 3, "#F4F1E8"); const fl = 1 + Math.sin(t * 9 + i * 2) * 0.25; C(x + dx, y - 5, 2.6 * fl, "rgba(246,196,83,0.35)"); C(x + dx, y - 5, 0.9 * fl, "#F6C453"); });
+    },
+    conteneurs(x, y) {
+      [[-12, 0, "#C9502E"], [0, 0, "#2D5E8C"], [-6, -6, "#E8B04B"], [6, -6, "#0B8F8A"]].forEach(([dx, dy, c]) => { R(x + dx - 6, y + dy - 6, 12, 6, c); for (let k = 1; k < 6; k++) R(x + dx - 6 + k * 2, y + dy - 5.5, 0.5, 5, "rgba(0,0,0,0.18)"); });
+    },
+    vendre(x, y) {
+      L([[x, y], [x, y - 14]], "#6B4128", 1.2); R(x - 11, y - 20, 22, 8, "#F4F1E8"); R(x - 11, y - 20, 22, 1.2, "#B03A2E");
+      ctx.fillStyle = "#B03A2E"; ctx.font = "bold 4.4px sans-serif"; ctx.textAlign = "center"; ctx.fillText("À VENDRE", x, y - 14.2); ctx.textAlign = "left";
+      R(x + 9, y - 5, 6, 5, "#8A5A2E"); R(x + 13, y - 3, 5, 3, "#9C6A3A");
+    },
+    goelette(x, y, t) {
+      const bx = x + Math.sin(t * 0.5) * 2, by = y + Math.sin(t * 1.3) * 0.8;
+      P([[bx - 14, by - 4], [bx + 14, by - 4], [bx + 11, by + 1.5], [bx - 11, by + 1.5]], "#F4F1E8"); R(bx - 14, by - 2.4, 28, 1.2, "#2D5E8C");
+      R(bx + 2, by - 9, 8, 5, "#E9E5DC"); R(bx + 3, by - 8, 2, 1.6, "#5DB7D3"); R(bx + 6, by - 8, 2, 1.6, "#5DB7D3");
+      [[-10, "#C9502E"], [-5, "#E8B04B"], [-7.5, "#0B8F8A"]].forEach(([dx, c], i) => R(bx + dx, by - 7 - (i === 2 ? 3 : 0), 4.5, 3, c));
+      L([[bx - 2, by - 4], [bx - 2, by - 16]], "#5A3A22", 0.8); P([[bx - 2, by - 16], [bx + 4, by - 14.5], [bx - 2, by - 13]], "#E8573D");
+    },
+    sos(x, y, t) {
+      ctx.fillStyle = "#F4F1E8"; ctx.font = "bold 8px sans-serif"; ctx.textAlign = "center"; ctx.fillText("SOS", x - 4, y + 1); ctx.textAlign = "left";
+      person(x + 12, y, "#B4472C", 0, null, 0.85); const w = Math.sin(t * 6) * 3; L([[x + 13, y - 8], [x + 15 + w * 0.3, y - 13]], "#6B4128", 0.9);
+    },
+    linge(x, y, t) {
+      L([[x - 14, y], [x - 14, y - 15]], "#6B4128", 0.9); L([[x + 14, y], [x + 14, y - 15]], "#6B4128", 0.9);
+      ctx.strokeStyle = "#5A3A22"; ctx.lineWidth = 0.4; ctx.beginPath(); ctx.moveTo(x - 14, y - 14); ctx.quadraticCurveTo(x, y - 11, x + 14, y - 14); ctx.stroke();
+      [["#E8573D", -10], ["#F6C453", -5], ["#2D5E8C", 1], ["#F27BA0", 7]].forEach(([c, dx], i) => { const sw = Math.sin(t * 2 + i) * 0.6; P([[x + dx, y - 13.2], [x + dx + 4, y - 13], [x + dx + 4 + sw, y - 8], [x + dx + sw, y - 8.3]], c); });
+      person(x - 4, y, "#0B8F8A", Math.abs(Math.sin(t * 5)) * 1.6, null, 0.7); person(x + 6, y, "#F2C14E", Math.abs(Math.sin(t * 5 + 1.5)) * 1.6, null, 0.7);
+    },
+    valises(x, y, t) {
+      [-9, 0, 8].forEach((dx, i) => { const s = i === 2 ? 0.7 : 0.95; person(x + dx, y, ["#5A6A7A", "#8A6A5A", "#6A7A6A"][i], 0, null, s); });
+      R(x - 5.6, y - 4, 4, 4, "#7A4A2A"); R(x + 3, y - 3.6, 5, 3.6, "#2D3E4E"); R(x - 4.4, y - 4.8, 1.6, 0.8, "#3A2A1A");
+    },
+    chantier(x, y) {
+      L([[x - 8, y], [x - 8, y - 16], [x + 8, y - 16], [x + 8, y]], "#9C7A4A", 1.1); L([[x - 8, y - 8], [x + 8, y - 8]], "#9C7A4A", 1); L([[x - 8, y - 16], [x + 8, y - 8]], "#9C7A4A", 0.6);
+      for (let k = 0; k < 6; k++) R(x - 12 + k * 4, y - 4, 4, 2.4, k % 2 ? "#1C1C1C" : "#F2C14E");
+      R(x - 6, y - 14, 12, 5, "#B03A2E"); ctx.fillStyle = "#FFFFFF"; ctx.font = "bold 3.6px sans-serif"; ctx.textAlign = "center"; ctx.fillText("ARRÊT", x, y - 10.6); ctx.textAlign = "left";
+    },
+  };
+  /* the brush's path over a touch: a few loose zig-zag strokes around the anchor (logical units) */
+  function brushPath(x, y, u) {
+    const pts = [[-18, -14], [16, -16], [-16, -8], [17, -6], [-15, 0], [14, 1]], segN = pts.length - 1, f = Math.min(segN, Math.max(0, u * segN)), i = Math.min(segN - 1, Math.floor(f)), r = f - i;
+    return [x + pts[i][0] + (pts[i + 1][0] - pts[i][0]) * r, y + pts[i][1] + (pts[i + 1][1] - pts[i][1]) * r];
+  }
+  const BR_IN = 450, BR_PAINT = 1300, BR_HOLD = 600, BR_OUT = 500, BR_ALL = BR_IN + BR_PAINT + BR_HOLD + BR_OUT;
+  function drawMarks(now, t, water) {
+    if (!S.marks || !S.marks.length) return;
+    const tn = typeof turnNo === "function" ? turnNo() : 0;
+    for (const m of S.marks) {
+      const fn = MARK_DRAW[m.k]; if (!fn) continue;
+      const left = m.until - tn; if (left < 0) continue;
+      const [x, y] = markAnchor(m.k, water), b = markBorn[m.id];
+      ctx.save(); ctx.globalAlpha = left <= 1 ? 0.55 : 1;
+      if (b != null && now < b + BR_PAINT + 200) {
+        if (now < b) { ctx.restore(); continue; }
+        if (reducedMotion()) ctx.globalAlpha *= Math.min(1, (now - b) / 700);
+        else {                                         // reveal only what the brush has already covered
+          const u = Math.min(1, (now - b) / BR_PAINT); ctx.beginPath();
+          for (let k = 0; k <= 40 * u; k++) { const [px, py] = brushPath(x, y, k / 40); ctx.moveTo(px + 9, py); ctx.arc(px, py, 9, 0, Math.PI * 2); }
+          ctx.clip();
+        }
+      }
+      fn(x, y, t); ctx.restore();
+    }
+  }
+  /* public: paint a touch (mark id) or a decision's new building (flag) with a zoom on the spot */
+  function brush(o) {
+    if (!o) return; const now = performance.now(), water = SHORE + 7 - Math.max(0, S.year - 1) * 0.7;
+    let fx, fy;
+    if (o.flag) { [fx, fy] = FLAG_POS[o.flag] || [220, 130]; if (!stillScene()) born[o.flag] = now + (reducedMotion() ? 0 : BR_IN); }
+    else { const [x, y] = markAnchor(o.k, water); fx = x; fy = y - 8; markBorn[o.id] = stillScene() ? now - 99999 : now + (reducedMotion() ? 0 : BR_IN); }
+    if (reducedMotion() || stillScene()) { brushFx = null; return; }
+    brushFx = { x: fx, y: fy, neg: !!o.neg, at: now, flag: !!o.flag };
+    if (typeof Sound === "object" && Sound.swish) Sound.swish(!!o.neg);
+    if (!raf) loop();
+  }
+  /* zoom on the brushed spot (a copy of the finished frame, scaled about the focus) + the brush itself */
+  /* soft pulsing halo on a quarter the player tapped */
+  let halo = null;
+  function highlight(pts) { if (stillScene()) return; halo = { pts, at: performance.now() }; if (!raf) loop(); }
+  function drawHalo(now) {
+    if (!halo) return; const age = now - halo.at, dur = 1800; if (age > dur) { halo = null; return; }
+    const a = Math.min(1, age / 200, (dur - age) / 400);
+    for (const [x, y, r = 22] of halo.pts) { const pr = r + (reducedMotion() ? 0 : Math.sin(age / 160) * 2);
+      ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = "#FFF6D8"; ctx.lineWidth = 2.2; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.ellipse(x, y, pr, pr * 0.62, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.globalAlpha = a * 0.18; ctx.fillStyle = "#FFF6D8"; ctx.fill(); ctx.restore(); }
+  }
+  function posOf(id) { const water = SHORE + 7 - Math.max(0, S.year - 1) * 0.7 - (S.flags && S.flags.submerge ? 3 : 0); return assetPos(id, SHORE, water, 404, REEF - 4); }
+  function drawBrushFx(now, k) {
+    const b = brushFx; if (!b) return; const age = now - b.at; if (age > BR_ALL) { brushFx = null; return; }
+    const ez = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
+    const zin = ez(age / BR_IN), zout = 1 - ez((age - BR_IN - BR_PAINT - BR_HOLD) / BR_OUT), z = 1 + 0.42 * Math.min(zin, zout);
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+    if (z > 1.001) { const sw = cv.width / z, sh = cv.height / z, sx = b.x * k * (1 - 1 / z), sy = b.y * k * (1 - 1 / z); ctx.drawImage(cv, sx, sy, sw, sh, 0, 0, cv.width, cv.height); }
+    const u = (age - BR_IN) / BR_PAINT;
+    if (u > -0.15 && u < 1.15) {
+      const uu = Math.max(0, Math.min(1, u)), [lx, ly] = b.flag ? [b.x + Math.sin(uu * 14) * 14, b.y - 10 + uu * 18] : brushPath(b.x, b.y + 8, uu), [nx, ny] = b.flag ? [b.x + Math.sin(uu * 14 + 0.3) * 14, b.y - 10 + uu * 18 + 0.4] : brushPath(b.x, b.y + 8, Math.min(1, uu + 0.03));
+      const al = Math.min(1, (u + 0.15) / 0.15, (1.15 - u) / 0.15), px = (b.x + (lx - b.x) * z) * k, py = (b.y + (ly - b.y) * z) * k, s = k * 0.55 * z;
+      ctx.globalAlpha = al; ctx.translate(px, py); ctx.rotate(Math.atan2(ny - ly, nx - lx) * 0.25 - 0.9); ctx.scale(s, s);
+      ctx.fillStyle = "rgba(10,30,30,0.25)"; ctx.beginPath(); ctx.ellipse(10, 34, 26, 4, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#7A4A2A"; ctx.beginPath(); ctx.roundRect(8, -6, 80, 12, 6); ctx.fill(); ctx.fillStyle = "#9A6A3E"; ctx.fillRect(14, -4, 60, 2.5);
+      ctx.fillStyle = "#C9CDCF"; ctx.fillRect(-4, -8, 14, 16); ctx.fillStyle = "#A9AEB1"; ctx.fillRect(-4, 3, 14, 3);
+      ctx.fillStyle = b.neg ? "#6E6A66" : "#2F8A55"; ctx.beginPath(); ctx.moveTo(-4, -8); ctx.quadraticCurveTo(-26, -6, -34, 0); ctx.quadraticCurveTo(-26, 6, -4, 8); ctx.fill();
+    }
+    ctx.restore();
   }
   const confetti = [];
   function drawAssetMarks(now, t, yb, water, ax, ay) {
@@ -7900,7 +8299,7 @@ const Scene = (() => {
     const gr = tx.createLinearGradient(0, th * 0.78, 0, th); gr.addColorStop(0, `rgba(${m[0]},${m[1]},${m[2]},0)`); gr.addColorStop(1, `rgba(${m[0]},${m[1]},${m[2]},1)`);
     tx.fillStyle = gr; tx.fillRect(0, 0, tw, th);
   }
-  return { update, addTrauma, freeze, quality: () => q, renderHero };
+  return { update, addTrauma, freeze, quality: () => q, renderHero, brush, markKinds: () => Object.keys(MARK_DRAW), flagPos: k => FLAG_POS[k], highlight, posOf, size: () => [W, H] };
 })();
 
 /* illustrated advisers, drawn from the name and role */
