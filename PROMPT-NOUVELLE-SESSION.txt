@@ -1,5 +1,0 @@
-Bonjour ! Je continue mon jeu « Manu o te nūnaʻa ». Voici le kit de la session précédente (manu-o-te-nunaa-kit.zip).
-1. Décompresse le kit et lance « bash restore.sh ».
-2. Lis HANDOVER.md : il explique le jeu, la construction (build.py), les tests, la publication et mes règles (noms fictifs, aucune personne réelle récente, respect, île imaginaire, sons peu aigus).
-3. L'artefact du jeu est ici : https://claude.ai/artifact/Bt64fPm8NfS6zQu63iUUbQ (republier au même lien).
-Ensuite, voici ce que je veux faire : …
